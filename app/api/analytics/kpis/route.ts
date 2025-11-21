@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.client.count({
         where: {
-          groupId: session.groupId,
+          companyId: session.companyId,
         },
       }),
       prisma.stock.aggregate({

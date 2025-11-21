@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     // Get inventory by category
     const categories = await prisma.category.findMany({
-      where: { groupId: session.groupId },
+      where: { companyId: session.companyId },
       include: {
         products: {
           include: {
