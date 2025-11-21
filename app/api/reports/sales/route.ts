@@ -32,11 +32,11 @@ export async function GET(request: NextRequest) {
 
     // Get sales by status
     const salesByStatus = {
-      DRAFT: sales.filter((s) => s.status === "DRAFT").length,
-      CONFIRMED: sales.filter((s) => s.status === "CONFIRMED").length,
-      SHIPPED: sales.filter((s) => s.status === "SHIPPED").length,
-      DELIVERED: sales.filter((s) => s.status === "DELIVERED").length,
-      CANCELLED: sales.filter((s) => s.status === "CANCELLED").length,
+      DRAFT: sales.filter((s: any) => s.status === "DRAFT").length,
+      CONFIRMED: sales.filter((s: any) => s.status === "CONFIRMED").length,
+      SHIPPED: sales.filter((s: any) => s.status === "SHIPPED").length,
+      DELIVERED: sales.filter((s: any) => s.status === "DELIVERED").length,
+      CANCELLED: sales.filter((s: any) => s.status === "CANCELLED").length,
     };
 
     // Get top products
@@ -67,5 +67,6 @@ export async function GET(request: NextRequest) {
     return handleApiError(error);
   }
 }
+
 
 

@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const inventoryData = categories.map((category) => {
+    const inventoryData = categories.map((category: any) => {
       const totalQuantity = category.products.reduce((sum: number, product: number) => {
         const qty = product.stocks.reduce((s: number, stock: number) => s + stock.quantity, 0);
         return sum + qty;
@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch inventory analytics' }, { status: 500 });
   }
 }
+
 
 
 

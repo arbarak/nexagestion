@@ -55,13 +55,13 @@ async function detectSalesAnomalies(companyId: string, threshold: number) {
     take: 100,
   });
 
-  const values = sales.map((s) => s.total || 0);
+  const values = sales.map((s: any) => s.total || 0);
   const mean = values.reduce((a: number, b: number) => a + b, 0) / values.length;
   const stdDev = Math.sqrt(values.reduce((sq: number, n: number) => sq + Math.pow(n - mean, 2), 0) / values.length);
 
   return sales
-    .filter(s => Math.abs((s.total || 0) - mean) > threshold * stdDev)
-    .map(s => ({
+    .filter((s: any) => Math.abs((s.total || 0) - mean) > threshold * stdDev)
+    .map((s: any) => ({
       id: s.id,
       type: 'sales',
       value: s.total,

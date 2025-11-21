@@ -30,10 +30,10 @@ export async function GET(request: NextRequest) {
     const totalValue = stocks.reduce((sum: number, s: number) => sum + (s.quantity * (s.unitPrice || 0)), 0);
 
     // Low stock items (quantity < 10)
-    const lowStockItems = stocks.filter((s) => s.quantity < 10);
+    const lowStockItems = stocks.filter((s: any) => s.quantity < 10);
 
     // Out of stock items
-    const outOfStockItems = stocks.filter((s) => s.quantity === 0);
+    const outOfStockItems = stocks.filter((s: any) => s.quantity === 0);
 
     // Stock movements summary
     const movements = await prisma.stockMovement.findMany({
@@ -43,9 +43,9 @@ export async function GET(request: NextRequest) {
     });
 
     const movementsByType = {
-      IN: movements.filter((m) => m.type === "IN").length,
-      OUT: movements.filter((m) => m.type === "OUT").length,
-      ADJUSTMENT: movements.filter((m) => m.type === "ADJUSTMENT").length,
+      IN: movements.filter((m: any) => m.type === "IN").length,
+      OUT: movements.filter((m: any) => m.type === "OUT").length,
+      ADJUSTMENT: movements.filter((m: any) => m.type === "ADJUSTMENT").length,
     };
 
     return NextResponse.json({
@@ -64,5 +64,6 @@ export async function GET(request: NextRequest) {
     return handleApiError(error);
   }
 }
+
 
 
