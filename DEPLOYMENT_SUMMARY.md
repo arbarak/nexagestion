@@ -420,11 +420,24 @@ kill -9 <PID>
 
 ### 📊 Application Status
 - **Status**: ✅ Running
-- **Port**: 3000
-- **Process Manager**: PM2
+- **Domain**: https://nexagestion.arbark.cloud
+- **Port**: 3000 (via Docker/Dokploy)
+- **Process Manager**: Dokploy (Docker Swarm)
 - **Memory Usage**: ~76.6 MB
 - **Uptime**: Continuous (auto-restart enabled)
 - **Database**: postgresql://admin:nexagestion@010@nexagestionapp-dtvzh3:5432/nexagestion
+- **Web Server**: Traefik (via Dokploy)
+- **SSL/HTTPS**: Managed by Dokploy/Traefik
+
+### 🐳 Docker Infrastructure
+```
+Running Containers:
+- dokploy.1.s5actgj9kc295yyw2vnnux0t9 (Port 3000)
+- nexagestionapp-dtvzh3.1.n1lyv5j3x80nm9p1ew15yyoia (PostgreSQL 5432)
+- dokploy-postgres.1.2feps498js3i6k021f50wzygz (Dokploy DB)
+- dokploy-redis.1.lk625lwl9hg06cc60hcvlo7qx (Redis Cache)
+- dokploy-traefik (Reverse Proxy - Ports 80/443)
+```
 
 ### 🔧 Quick Reference Commands
 
@@ -515,11 +528,58 @@ curl -I http://localhost:3000
    - Set up log aggregation
    - Configure alerts
 
-### 📞 Support
+## 🚀 Accessing Your Application
+
+### Via Domain (Recommended)
+```
+https://nexagestion.arbark.cloud
+```
+
+### Via IP Address
+```
+http://72.61.106.182:3000
+```
+
+### Dokploy Dashboard
+```
+http://72.61.106.182 (or https://72.61.106.182)
+```
+
+## � Docker Management Commands
+
+### View Running Containers
+```bash
+ssh root@72.61.106.182
+docker ps
+```
+
+### View Container Logs
+```bash
+docker logs -f dokploy.1.s5actgj9kc295yyw2vnnux0t9
+```
+
+### Restart Container
+```bash
+docker restart dokploy.1.s5actgj9kc295yyw2vnnux0t9
+```
+
+### Check Docker Network
+```bash
+docker network ls
+docker network inspect nexagestion_default
+```
+
+### View Traefik Configuration
+```bash
+docker logs -f dokploy-traefik
+```
+
+## �📞 Support
 
 For issues or questions:
-1. Check PM2 logs: `pm2 logs nexagestion`
-2. Check application health: `curl -I http://localhost:3000`
+1. Check Docker logs: `docker logs -f <container_id>`
+2. Check application health: `curl -I https://nexagestion.arbark.cloud`
 3. Verify database connection: `psql postgresql://admin:nexagestion@010@nexagestionapp-dtvzh3:5432/nexagestion`
-4. Review DEPLOYMENT_SUMMARY.md for troubleshooting
+4. Access Dokploy dashboard for monitoring
+5. Review DEPLOYMENT_SUMMARY.md for troubleshooting
 
