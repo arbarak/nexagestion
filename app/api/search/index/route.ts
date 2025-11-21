@@ -5,7 +5,7 @@ import { verifyAuth } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const session = await verifyAuth(request);
-    if (!session) {
+    if (!session || !session.companyId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -54,4 +54,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 

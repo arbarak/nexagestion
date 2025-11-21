@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const session = await verifyAuth(request);
-    if (!session) {
+    if (!session || !session.companyId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -42,4 +42,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch inventory analytics' }, { status: 500 });
   }
 }
+
 

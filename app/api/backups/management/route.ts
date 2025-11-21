@@ -18,7 +18,7 @@ const scheduleSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const session = await verifyAuth(request);
-    if (!session) {
+    if (!session || !session.companyId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await verifyAuth(request);
-    if (!session) {
+    if (!session || !session.companyId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await verifyAuth(request);
-    if (!session) {
+    if (!session || !session.companyId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -107,4 +107,5 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
 

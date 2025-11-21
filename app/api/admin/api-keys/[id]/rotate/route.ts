@@ -8,7 +8,7 @@ export async function POST(
 ) {
   try {
     const session = await verifyAuth(request);
-    if (!session) {
+    if (!session || !session.companyId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
