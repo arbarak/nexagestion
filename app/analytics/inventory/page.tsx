@@ -4,8 +4,13 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
+interface InventoryItem {
+  value: number;
+  [key: string]: any;
+}
+
 export default function InventoryAnalyticsPage() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
