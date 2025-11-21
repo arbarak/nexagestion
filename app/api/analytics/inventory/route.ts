@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     const inventoryData = categories.map((category: any) => {
       const totalQuantity = category.products.reduce((sum: number, product: any) => {
-        const qty = product.stocks.reduce((s: number, stock: number) => s + stock.quantity, 0);
+        const qty = product.stocks.reduce((s: number, stock: any) => s + stock.quantity, 0);
         return sum + qty;
       }, 0);
 
