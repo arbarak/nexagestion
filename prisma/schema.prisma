@@ -110,6 +110,7 @@ model User {
   approvalsRequested Approval[]
   automationRules AutomationRule[]
   twoFactorAuths TwoFactorAuth[]
+  passwordResets PasswordReset[]
   securityAuditLogs SecurityAuditLog[]
   complianceRequirements ComplianceRequirement[]
   backups       Backup[]
@@ -861,24 +862,42 @@ model TwoFactorAuth {
   @@map("two_factor_auth")
 }
 
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String   @unique
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([code])
+  @@map("password_reset")
+}
+
 model SecurityAuditLog {
   id        String   @id @default(cuid())
-  companyId String
+  companyId String?
   userId    String
-  action    String
-  entityType String
+  eventType String   // LOGIN_SUCCESS, LOGIN_FAILED, PASSWORD_RESET_REQUESTED, etc.
+  action    String?
+  entityType String?
   entityId  String?
   changes   Json?
+  details   String?  // JSON string for flexible event details
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
 
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([companyId])
   @@index([userId])
-  @@index([action])
+  @@index([eventType])
+  @@index([createdAt])
   @@map("security_audit_logs")
 }
 
