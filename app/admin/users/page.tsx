@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,6 @@ import {
 } from "@/components/ui/select";
 
 export default function UsersPage() {
-  const { data: session } = useSession();
   const [users, setUsers] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -31,10 +29,7 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const groupId = (session?.user as any)?.groupId || '';
-      const response = await fetch(
-        `/api/users?groupId=${groupId}`
-      );
+      const response = await fetch("/api/users");
       if (response.ok) {
         const result = await response.json();
         setUsers(result.data);
@@ -47,20 +42,15 @@ export default function UsersPage() {
   };
 
   useEffect(() => {
-    if (session?.user) {
-      fetchUsers();
-    }
-  }, [session]);
+    fetchUsers();
+  }, []);
 
   const handleCreateUser = async () => {
     try {
       const response = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          companyId: session?.user?.companyId,
-        }),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
