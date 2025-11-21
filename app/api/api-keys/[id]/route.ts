@@ -18,7 +18,7 @@ export async function GET(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "API_KEYS", "READ");
+    checkPermission(session, "COMPANY", "READ");
 
     const apiKey = await prisma.apiKey.findUnique({
       where: { id: params.id },
@@ -49,7 +49,7 @@ export async function PATCH(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "API_KEYS", "UPDATE");
+    checkPermission(session, "COMPANY", "UPDATE");
 
     const apiKey = await prisma.apiKey.findUnique({
       where: { id: params.id },
@@ -88,7 +88,7 @@ export async function DELETE(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "API_KEYS", "DELETE");
+    checkPermission(session, "COMPANY", "DELETE");
 
     const apiKey = await prisma.apiKey.findUnique({
       where: { id: params.id },

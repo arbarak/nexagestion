@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "API_KEYS", "READ");
+    checkPermission(session, "COMPANY", "READ");
 
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get("companyId");
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "API_KEYS", "CREATE");
+    checkPermission(session, "COMPANY", "CREATE");
 
     const body = await request.json();
     const data = createApiKeySchema.parse(body);
@@ -89,4 +89,5 @@ export async function POST(request: NextRequest) {
     return handleApiError(error);
   }
 }
+
 
