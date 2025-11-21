@@ -57,8 +57,8 @@ export async function POST(request: NextRequest) {
     checkGroupAccess(session, data.groupId);
 
     // Validate debit/credit balance
-    const totalDebit = data.entries.reduce((sum: number, e: number) => sum + e.debit, 0);
-    const totalCredit = data.entries.reduce((sum: number, e: number) => sum + e.credit, 0);
+    const totalDebit = data.entries.reduce((sum: number, e: any) => sum + e.debit, 0);
+    const totalCredit = data.entries.reduce((sum: number, e: any) => sum + e.credit, 0);
 
     if (Math.abs(totalDebit - totalCredit) > 0.01) {
       throw ErrorCodes.VALIDATION_ERROR("Debit and credit must balance");
@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
     return handleApiError(error);
   }
 }
+
 
 
 

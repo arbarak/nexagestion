@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
 
     // Calculate metrics
     const totalItems = stocks.length;
-    const totalQuantity = stocks.reduce((sum: number, s: number) => sum + s.quantity, 0);
-    const totalValue = stocks.reduce((sum: number, s: number) => sum + (s.quantity * (s.unitPrice || 0)), 0);
+    const totalQuantity = stocks.reduce((sum: number, s: any) => sum + s.quantity, 0);
+    const totalValue = stocks.reduce((sum: number, s: any) => sum + (s.quantity * (s.unitPrice || 0)), 0);
 
     // Low stock items (quantity < 10)
     const lowStockItems = stocks.filter((s: any) => s.quantity < 10);
@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
     return handleApiError(error);
   }
 }
+
 
 
 

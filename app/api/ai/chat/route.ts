@@ -80,7 +80,7 @@ async function generateAIResponse(message: string, companyId: string): Promise<s
       take: 1,
       orderBy: { createdAt: 'desc' },
     });
-    const total = sales.reduce((sum: number, s: number) => sum + (s.total || 0), 0);
+    const total = sales.reduce((sum: number, s: any) => sum + (s.total || 0), 0);
     return `Based on recent data, your total sales are $${total.toLocaleString()}. Would you like more details?`;
   }
 
@@ -88,7 +88,7 @@ async function generateAIResponse(message: string, companyId: string): Promise<s
     const stocks = await prisma.stock.findMany({
       where: { companyId },
     });
-    const lowStock = stocks.filter(s => s.quantity < s.minQuantity).length;
+    const lowStock = stocks.filter((s: any) => s.quantity < s.minQuantity).length;
     return `You have ${lowStock} products with low stock levels. Would you like me to show you which ones?`;
   }
 

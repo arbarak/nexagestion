@@ -58,7 +58,7 @@ function generatePredictions(sales: any[], type: string, period: string): any[] 
   const periodDays = period === 'week' ? 7 : period === 'month' ? 30 : 90;
   
   // Calculate average daily sales
-  const avgDaily = sales.reduce((sum: number, s: number) => sum + (s.total || 0), 0) / Math.max(sales.length, 1);
+  const avgDaily = sales.reduce((sum: number, s: any) => sum + (s.total || 0), 0) / Math.max(sales.length, 1);
   
   for (let i = 1; i <= 4; i++) {
     const variance = (Math.random() - 0.5) * 0.2; // ±10% variance
@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch predictions' }, { status: 500 });
   }
 }
+
 
 
 

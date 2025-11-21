@@ -33,9 +33,9 @@ export async function GET(request: NextRequest) {
         where: { companyId, accountType: "EQUITY" },
       });
 
-      const totalAssets = assets.reduce((sum: number, a: number) => sum + a.balance, 0);
-      const totalLiabilities = liabilities.reduce((sum: number, a: number) => sum + a.balance, 0);
-      const totalEquity = equity.reduce((sum: number, a: number) => sum + a.balance, 0);
+      const totalAssets = assets.reduce((sum: number, a: any) => sum + a.balance, 0);
+      const totalLiabilities = liabilities.reduce((sum: number, a: any) => sum + a.balance, 0);
+      const totalEquity = equity.reduce((sum: number, a: any) => sum + a.balance, 0);
 
       return NextResponse.json({
         data: {
@@ -57,8 +57,8 @@ export async function GET(request: NextRequest) {
         where: { companyId, accountType: "EXPENSE" },
       });
 
-      const totalRevenue = revenues.reduce((sum: number, a: number) => sum + a.balance, 0);
-      const totalExpenses = expenses.reduce((sum: number, a: number) => sum + a.balance, 0);
+      const totalRevenue = revenues.reduce((sum: number, a: any) => sum + a.balance, 0);
+      const totalExpenses = expenses.reduce((sum: number, a: any) => sum + a.balance, 0);
       const netIncome = totalRevenue - totalExpenses;
 
       return NextResponse.json({
@@ -77,6 +77,7 @@ export async function GET(request: NextRequest) {
     return handleApiError(error);
   }
 }
+
 
 
 
