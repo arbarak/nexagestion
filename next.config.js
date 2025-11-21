@@ -4,6 +4,8 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["@radix-ui/react-icons"],
   },
+  output: "standalone",
+  outputFileTracingRoot: __dirname,
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -11,6 +13,8 @@ const nextConfig = {
       path: false,
       crypto: false,
     };
+    // Disable webpack cache to avoid disk space issues
+    config.cache = false;
     return config;
   },
 };
