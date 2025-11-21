@@ -36,15 +36,15 @@ export async function GET(request: NextRequest) {
 
     // Calculate averages
     const avgLoadTime =
-      metrics.reduce((sum, m) => sum + m.loadTime, 0) / metrics.length || 0;
+      metrics.reduce((sum: number, m: number) => sum + m.loadTime, 0) / metrics.length || 0;
     const avgFCP =
-      metrics.reduce((sum, m) => sum + m.firstContentfulPaint, 0) /
+      metrics.reduce((sum: number, m: number) => sum + m.firstContentfulPaint, 0) /
         metrics.length || 0;
     const avgLCP =
-      metrics.reduce((sum, m) => sum + m.largestContentfulPaint, 0) /
+      metrics.reduce((sum: number, m: number) => sum + m.largestContentfulPaint, 0) /
         metrics.length || 0;
     const avgCLS =
-      metrics.reduce((sum, m) => sum + m.cumulativeLayoutShift, 0) /
+      metrics.reduce((sum: number, m: number) => sum + m.cumulativeLayoutShift, 0) /
         metrics.length || 0;
 
     return NextResponse.json({
@@ -91,4 +91,5 @@ export async function POST(request: NextRequest) {
     return handleApiError(error);
   }
 }
+
 

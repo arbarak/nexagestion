@@ -108,7 +108,7 @@ async function getSupplierRecommendations(companyId: string, limit: number) {
 
 function calculateScore(recommendations: any[]): number {
   if (recommendations.length === 0) return 0;
-  const avgScore = recommendations.reduce((sum, r) => sum + r.score, 0) / recommendations.length;
+  const avgScore = recommendations.reduce((sum: number, r: number) => sum + r.score, 0) / recommendations.length;
   return Math.round(avgScore * 100) / 100;
 }
 
@@ -138,5 +138,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch recommendations' }, { status: 500 });
   }
 }
+
 
 

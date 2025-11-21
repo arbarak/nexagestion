@@ -80,7 +80,7 @@ async function generateAIResponse(message: string, companyId: string): Promise<s
       take: 1,
       orderBy: { createdAt: 'desc' },
     });
-    const total = sales.reduce((sum, s) => sum + (s.total || 0), 0);
+    const total = sales.reduce((sum: number, s: number) => sum + (s.total || 0), 0);
     return `Based on recent data, your total sales are $${total.toLocaleString()}. Would you like more details?`;
   }
 
@@ -138,5 +138,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch chat' }, { status: 500 });
   }
 }
+
 
 

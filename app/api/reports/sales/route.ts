@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate metrics
-    const totalSales = sales.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+    const totalSales = sales.reduce((sum: number, s: number) => sum + (s.totalAmount || 0), 0);
     const totalOrders = sales.length;
     const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
@@ -67,4 +67,5 @@ export async function GET(request: NextRequest) {
     return handleApiError(error);
   }
 }
+
 

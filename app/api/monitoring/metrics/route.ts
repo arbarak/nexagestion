@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     const values = metrics.map(m => m.value);
     const stats = {
       count: metrics.length,
-      average: values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : 0,
+      average: values.length > 0 ? values.reduce((a: number, b: number) => a + b, 0) / values.length : 0,
       min: values.length > 0 ? Math.min(...values) : 0,
       max: values.length > 0 ? Math.max(...values) : 0,
       latest: metrics[0]?.value || 0,
@@ -81,5 +81,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch metrics' }, { status: 500 });
   }
 }
+
 
 
