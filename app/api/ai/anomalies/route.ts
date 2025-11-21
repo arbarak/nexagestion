@@ -75,8 +75,8 @@ async function detectInventoryAnomalies(companyId: string, threshold: number) {
   });
 
   return stocks
-    .filter(s => s.quantity < s.minQuantity * 0.5)
-    .map(s => ({
+    .filter((s: any) => s.quantity < s.minQuantity * 0.5)
+    .map((s: any) => ({
       id: s.id,
       type: 'inventory',
       value: s.quantity,
@@ -91,13 +91,13 @@ async function detectPaymentAnomalies(companyId: string, threshold: number) {
     take: 100,
   });
 
-  const values = payments.map(p => p.amount);
-  const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const stdDev = Math.sqrt(values.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / values.length);
+  const values = payments.map((p: any) => p.amount);
+  const mean = values.reduce((a: number, b: number) => a + b, 0) / values.length;
+  const stdDev = Math.sqrt(values.reduce((sq: number, n: number) => sq + Math.pow(n - mean, 2), 0) / values.length);
 
   return payments
-    .filter(p => Math.abs(p.amount - mean) > threshold * stdDev)
-    .map(p => ({
+    .filter((p: any) => Math.abs(p.amount - mean) > threshold * stdDev)
+    .map((p: any) => ({
       id: p.id,
       type: 'payment',
       value: p.amount,
@@ -111,14 +111,14 @@ async function detectCustomerAnomalies(companyId: string, threshold: number) {
     include: { sales: true },
   });
 
-  const avgOrders = clients.reduce((sum, c) => sum + c.sales.length, 0) / clients.length;
+  const avgOrders = clients.reduce((sum: number, c: any) => sum + c.sales.length, 0) / clients.length;
   const stdDev = Math.sqrt(
-    clients.reduce((sq, c) => sq + Math.pow(c.sales.length - avgOrders, 2), 0) / clients.length
+    clients.reduce((sq: number, c: any) => sq + Math.pow(c.sales.length - avgOrders, 2), 0) / clients.length
   );
 
   return clients
-    .filter(c => Math.abs(c.sales.length - avgOrders) > threshold * stdDev)
-    .map(c => ({
+    .filter((c: any) => Math.abs(c.sales.length - avgOrders) > threshold * stdDev)
+    .map((c: any) => ({
       id: c.id,
       type: 'customer',
       value: c.sales.length,
