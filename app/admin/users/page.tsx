@@ -8,8 +8,17 @@ import { Label } from "@/components/ui/label";
 import { DataTable } from "@/components/data-table";
 import { Select } from "@/components/ui/select";
 
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  createdAt?: string;
+}
+
 export default function UsersPage() {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
