@@ -35,8 +35,6 @@ export async function GET(
 
     if (!apiKey) throw ErrorCodes.NOT_FOUND("API Key not found");
 
-    checkGroupAccess(session, session.user.groupId);
-
     return NextResponse.json({ data: apiKey });
   } catch (error) {
     return handleApiError(error);
