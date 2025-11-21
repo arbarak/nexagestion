@@ -81,12 +81,12 @@ async function getCustomerRecommendations(companyId: string, limit: number) {
   });
 
   return clients
-    .map(c => ({
+    .map((c: any) => ({
       id: c.id,
       name: c.name,
       score: Math.min(1, (c.sales.length / 10)),
     }))
-    .sort((a, b) => b.score - a.score)
+    .sort((a: any, b: any) => b.score - a.score)
     .slice(0, limit);
 }
 
@@ -97,12 +97,12 @@ async function getSupplierRecommendations(companyId: string, limit: number) {
   });
 
   return suppliers
-    .map(s => ({
+    .map((s: any) => ({
       id: s.id,
       name: s.name,
       score: Math.min(1, (s.purchases.length / 10)),
     }))
-    .sort((a, b) => b.score - a.score)
+    .sort((a: any, b: any) => b.score - a.score)
     .slice(0, limit);
 }
 
