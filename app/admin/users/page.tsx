@@ -59,7 +59,6 @@ export default function UsersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
           companyId: session?.user?.companyId,
         }),
       });
