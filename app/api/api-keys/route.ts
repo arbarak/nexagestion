@@ -30,8 +30,6 @@ export async function GET(request: NextRequest) {
       throw ErrorCodes.VALIDATION_ERROR("companyId is required");
     }
 
-    checkGroupAccess(session, session.user.groupId);
-
     const apiKeys = await prisma.apiKey.findMany({
       where: { companyId },
       select: {
@@ -59,8 +57,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const data = createApiKeySchema.parse(body);
-
-    checkGroupAccess(session, data.groupId);
 
     const apiKey = generateApiKey();
     const hashedKey = crypto.createHash("sha256").update(apiKey).digest("hex");

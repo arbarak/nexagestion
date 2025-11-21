@@ -16,12 +16,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "COMPANY", "READ");
 
     const apiKey = await prisma.apiKey.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         name: true,
@@ -47,23 +48,22 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "COMPANY", "UPDATE");
 
     const apiKey = await prisma.apiKey.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!apiKey) throw ErrorCodes.NOT_FOUND("API Key not found");
-
-    checkGroupAccess(session, session.user.groupId);
 
     const body = await request.json();
     const data = updateApiKeySchema.parse(body);
 
     const updated = await prisma.apiKey.update({
-      where: { id: params.id },
+      where: { id },
       data,
       select: {
         id: true,
@@ -82,23 +82,22 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "COMPANY", "DELETE");
 
     const apiKey = await prisma.apiKey.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!apiKey) throw ErrorCodes.NOT_FOUND("API Key not found");
 
-    checkGroupAccess(session, session.user.groupId);
-
-    await prisma.apiKey.delete({ where: { id: params.id } });
+    await prisma.apiKey.delete({ where: { id } });
 
     return NextResponse.json({ data: { success: true } });
   } catch (error) {
