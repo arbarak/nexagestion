@@ -57,8 +57,8 @@ async function getProductRecommendations(companyId: string, clientId: string, li
     include: { items: { include: { product: true } } },
   });
 
-  const productIds = new Set(clientSales.flatMap(s => s.items.map(i => i.productId)));
-  
+  const productIds = new Set(clientSales.flatMap((s: any) => s.items.map((i: any) => i.productId)));
+
   const recommendations = await prisma.product.findMany({
     where: {
       companyId,
@@ -67,7 +67,7 @@ async function getProductRecommendations(companyId: string, clientId: string, li
     take: limit,
   });
 
-  return recommendations.map(p => ({
+  return recommendations.map((p: any) => ({
     id: p.id,
     name: p.name,
     score: Math.random() * 0.5 + 0.5,

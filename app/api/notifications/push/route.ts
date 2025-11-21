@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // Create notifications for each user
     const notifications = await Promise.all(
-      users.map((user) =>
+      users.map((user: any) =>
         prisma.notification.create({
           data: {
             userId: user.id,

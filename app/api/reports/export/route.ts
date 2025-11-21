@@ -68,7 +68,7 @@ function generateCSV(reportType: string, filters?: any): string {
 
   const csv = [
     headers.join(','),
-    ...data.map((row) => headers.map((h) => `"${row[h] || ''}"`).join(',')),
+    ...data.map((row: any) => headers.map((h: any) => `"${row[h] || ''}"`).join(',')),
   ].join('\n');
 
   return csv;

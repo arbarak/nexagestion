@@ -18,9 +18,9 @@ function convertToCSV(data: any[]): string {
   const headers = Object.keys(data[0]);
   const csv = [
     headers.join(","),
-    ...data.map((row) =>
+    ...data.map((row: any) =>
       headers
-        .map((header) => {
+        .map((header: any) => {
           const value = row[header];
           if (typeof value === "string" && value.includes(",")) {
             return `"${value}"`;
