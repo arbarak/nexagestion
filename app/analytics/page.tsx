@@ -13,10 +13,14 @@ interface KPI {
   trend: 'up' | 'down';
 }
 
+interface ChartData {
+  [key: string]: any;
+}
+
 export default function AnalyticsPage() {
   const [kpis, setKpis] = useState<KPI[]>([]);
-  const [salesData, setSalesData] = useState([]);
-  const [inventoryData, setInventoryData] = useState([]);
+  const [salesData, setSalesData] = useState<ChartData[]>([]);
+  const [inventoryData, setInventoryData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

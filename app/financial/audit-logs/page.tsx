@@ -1,20 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 
+interface AuditLog {
+  id: string;
+  [key: string]: any;
+}
+
 export default function AuditLogsPage() {
-  const { data: session } = useSession();
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchLogs = async () => {
     try {
-      const response = await fetch(
-        `/api/audit-logs?companyId=${session?.user?.companyId}&limit=200`
-      );
+      const response = await fetch("/api/audit-logs?limit=200");
       if (response.ok) {
         const result = await response.json();
         setLogs(result.data);
@@ -27,10 +28,8 @@ export default function AuditLogsPage() {
   };
 
   useEffect(() => {
-    if (session?.user?.companyId) {
-      fetchLogs();
-    }
-  }, [session]);
+    fetchLogs();
+  }, []);
 
   return (
     <div className="space-y-6">

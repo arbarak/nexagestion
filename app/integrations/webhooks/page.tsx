@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DataTable } from "@/components/data-table";
 
+interface Webhook {
+  id: string;
+  [key: string]: any;
+}
+
 export default function WebhooksPage() {
-  const { data: session } = useSession();
-  const [webhooks, setWebhooks] = useState([]);
+  const [webhooks, setWebhooks] = useState<Webhook[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -31,9 +34,7 @@ export default function WebhooksPage() {
 
   const fetchWebhooks = async () => {
     try {
-      const response = await fetch(
-        `/api/webhooks?companyId=${session?.user?.companyId}`
-      );
+      const response = await fetch("/api/webhooks");
       if (response.ok) {
         const result = await response.json();
         setWebhooks(result.data);
@@ -46,10 +47,8 @@ export default function WebhooksPage() {
   };
 
   useEffect(() => {
-    if (session?.user?.companyId) {
-      fetchWebhooks();
-    }
-  }, [session]);
+    fetchWebhooks();
+  }, []);
 
   const handleCreateWebhook = async () => {
     try {

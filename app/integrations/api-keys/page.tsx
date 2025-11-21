@@ -1,25 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DataTable } from "@/components/data-table";
 
+interface ApiKey {
+  id: string;
+  [key: string]: any;
+}
+
 export default function ApiKeysPage() {
-  const { data: session } = useSession();
-  const [apiKeys, setApiKeys] = useState([]);
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ name: "", permissions: [] });
 
   const fetchApiKeys = async () => {
     try {
-      const response = await fetch(
-        `/api/api-keys?companyId=${session?.user?.companyId}`
-      );
+      const response = await fetch("/api/api-keys");
       if (response.ok) {
         const result = await response.json();
         setApiKeys(result.data);
@@ -32,10 +33,8 @@ export default function ApiKeysPage() {
   };
 
   useEffect(() => {
-    if (session?.user?.companyId) {
-      fetchApiKeys();
-    }
-  }, [session]);
+    fetchApiKeys();
+  }, []);
 
   const handleCreateKey = async () => {
     try {

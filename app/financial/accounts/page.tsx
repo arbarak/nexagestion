@@ -1,24 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 import { ReferentialForm } from "@/components/referential-form";
 
+interface Account {
+  id: string;
+  [key: string]: any;
+}
+
 export default function AccountsPage() {
-  const { data: session } = useSession();
-  const [accounts, setAccounts] = useState([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [editingAccount, setEditingAccount] = useState(null);
+  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchAccounts = async () => {
     try {
-      const response = await fetch(
-        `/api/financial/accounts?companyId=${session?.user?.companyId}`
-      );
+      const response = await fetch("/api/financial/accounts");
       if (response.ok) {
         const result = await response.json();
         setAccounts(result.data);
@@ -31,10 +32,8 @@ export default function AccountsPage() {
   };
 
   useEffect(() => {
-    if (session?.user?.companyId) {
-      fetchAccounts();
-    }
-  }, [session]);
+    fetchAccounts();
+  }, []);
 
   const handleSubmit = async (formData: Record<string, any>) => {
     try {

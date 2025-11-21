@@ -5,8 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
 
+interface SalesData {
+  [key: string]: any;
+}
+
 export default function SalesAnalyticsPage() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<SalesData[]>([]);
   const [period, setPeriod] = useState('12');
   const [loading, setLoading] = useState(true);
 

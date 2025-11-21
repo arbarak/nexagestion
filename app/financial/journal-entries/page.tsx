@@ -1,21 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 
+interface JournalEntry {
+  id: string;
+  [key: string]: any;
+}
+
 export default function JournalEntriesPage() {
-  const { data: session } = useSession();
-  const [entries, setEntries] = useState([]);
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchEntries = async () => {
     try {
-      const response = await fetch(
-        `/api/financial/journal-entries?companyId=${session?.user?.companyId}`
-      );
+      const response = await fetch("/api/financial/journal-entries");
       if (response.ok) {
         const result = await response.json();
         setEntries(result.data);
@@ -28,10 +29,8 @@ export default function JournalEntriesPage() {
   };
 
   useEffect(() => {
-    if (session?.user?.companyId) {
-      fetchEntries();
-    }
-  }, [session]);
+    fetchEntries();
+  }, []);
 
   const handleCreateEntry = async () => {
     // This would open a modal for creating complex journal entries
