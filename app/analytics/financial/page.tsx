@@ -5,8 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
 
+interface FinancialData {
+  revenue: number;
+  expenses: number;
+  [key: string]: any;
+}
+
 export default function FinancialAnalyticsPage() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<FinancialData[]>([]);
   const [period, setPeriod] = useState('12');
   const [loading, setLoading] = useState(true);
 
