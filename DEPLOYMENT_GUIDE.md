@@ -1,8 +1,53 @@
 # NexaGestion ERP - Deployment Guide
 
-## Phase 17: Advanced DevOps & Infrastructure
+## 🚀 Current VPS Deployment (72.61.106.182)
 
-This guide covers deploying NexaGestion using Docker, Kubernetes, and AWS infrastructure.
+### Status
+✅ Application built and running on port 3000
+✅ PM2 process manager configured
+✅ Dokploy managing ports 80/443
+✅ Docker containers active
+
+### Quick Commands
+```bash
+# SSH into VPS
+ssh root@72.61.106.182
+
+# Check application status
+pm2 status
+
+# View logs
+pm2 logs nexagestion
+
+# Restart application
+pm2 restart nexagestion
+```
+
+---
+
+## 📋 Domain Configuration
+
+### Step 1: Point Domain to VPS
+1. Go to your domain registrar (GoDaddy, Namecheap, etc.)
+2. Update DNS A record:
+   - **Name**: @ (root domain)
+   - **Type**: A
+   - **Value**: 72.61.106.182
+   - **TTL**: 3600
+3. Wait 5-15 minutes for DNS propagation
+
+### Step 2: Update Environment Variables
+Edit `/root/nexagestion/.env.production`:
+```bash
+NEXT_PUBLIC_APP_URL=https://YOUR_DOMAIN_HERE
+```
+
+### Step 3: Restart Application
+```bash
+ssh root@72.61.106.182
+pm2 restart nexagestion
+pm2 save
+```
 
 ---
 
