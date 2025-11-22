@@ -1,5 +1,6 @@
 import { searchService } from './search-service';
 import { prisma } from './prisma';
+import type { Order, Invoice, Product, Client } from '@prisma/client';
 
 export class SearchIndexer {
   async indexOrders(companyId: string): Promise<number> {
@@ -11,7 +12,23 @@ export class SearchIndexer {
       },
     });
 
-    const documents = orders.map(order => ({
+    interface OrderDocument {
+      id: string;
+      data: {
+        type: string;
+        companyId: string;
+        title: string;
+        description: string;
+        content: string;
+        status: string;
+        clientId: string;
+        totalAmount: number;
+        createdAt: Date;
+        tags: string[];
+      };
+    }
+
+    const documents: OrderDocument[] = orders.map((order: Order & { client?: Client | null }) => ({
       id: order.id,
       data: {
         type: 'order',
@@ -42,7 +59,7 @@ export class SearchIndexer {
       },
     });
 
-    const documents = invoices.map(invoice => ({
+    const documents = invoices.map((invoice: Invoice & { order?: Order | null }) => ({
       id: invoice.id,
       data: {
         type: 'invoice',
@@ -74,7 +91,7 @@ export class SearchIndexer {
       },
     });
 
-    const documents = products.map(product => ({
+    const documents = products.map((product: Product & { category?: { name: string } | null; brand?: { name: string } | null }) => ({
       id: product.id,
       data: {
         type: 'product',
@@ -103,7 +120,7 @@ export class SearchIndexer {
       where: { companyId },
     });
 
-    const documents = clients.map(client => ({
+    const documents = clients.map((client: Client) => ({
       id: client.id,
       data: {
         type: 'client',
@@ -134,7 +151,7 @@ export class SearchIndexer {
       },
     });
 
-    const indexDocs = documents.map(doc => ({
+    const indexDocs = documents.map((doc: any) => ({
       id: doc.id,
       data: {
         type: 'document',

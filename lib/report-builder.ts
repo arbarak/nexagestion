@@ -63,7 +63,16 @@ export class ReportBuilder {
       include: { product: true, category: true },
     });
 
-    const rows = stocks.map(stock => ({
+    interface InventoryRow {
+      productName?: string;
+      category?: string;
+      quantity: number;
+      minimumLevel?: number;
+      value: number;
+      status: string;
+    }
+
+    const rows: InventoryRow[] = stocks.map((stock) => ({
       productName: stock.product?.name,
       category: stock.category?.name,
       quantity: stock.quantity,
@@ -74,8 +83,8 @@ export class ReportBuilder {
 
     const summary = {
       totalItems: rows.length,
-      totalValue: rows.reduce((sum, r) => sum + (r.value || 0), 0),
-      lowStockItems: rows.filter(r => r.status === 'Low Stock').length,
+      totalValue: rows.reduce((sum: number, r: InventoryRow) => sum + (r.value || 0), 0),
+      lowStockItems: rows.filter((r: InventoryRow) => r.status === 'Low Stock').length,
     };
 
     return {
@@ -92,7 +101,15 @@ export class ReportBuilder {
       where: { companyId },
     });
 
-    const rows = invoices.map(invoice => ({
+    interface FinancialRow {
+      invoiceNumber: string;
+      amount: number;
+      status: string;
+      dueDate: Date | null;
+      createdAt: Date;
+    }
+
+    const rows: FinancialRow[] = invoices.map((invoice) => ({
       invoiceNumber: invoice.invoiceNumber,
       amount: invoice.amount,
       status: invoice.status,
@@ -102,9 +119,9 @@ export class ReportBuilder {
 
     const summary = {
       totalInvoices: rows.length,
-      totalAmount: rows.reduce((sum, r) => sum + (r.amount || 0), 0),
-      paidAmount: rows.filter(r => r.status === 'paid').reduce((sum, r) => sum + (r.amount || 0), 0),
-      pendingAmount: rows.filter(r => r.status !== 'paid').reduce((sum, r) => sum + (r.amount || 0), 0),
+      totalAmount: rows.reduce((sum: number, r: FinancialRow) => sum + (r.amount || 0), 0),
+      paidAmount: rows.filter((r: FinancialRow) => r.status === 'paid').reduce((sum: number, r: FinancialRow) => sum + (r.amount || 0), 0),
+      pendingAmount: rows.filter((r: FinancialRow) => r.status !== 'paid').reduce((sum: number, r: FinancialRow) => sum + (r.amount || 0), 0),
     };
 
     return {

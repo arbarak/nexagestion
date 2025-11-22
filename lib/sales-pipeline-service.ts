@@ -81,7 +81,7 @@ export class SalesPipelineService {
     return deals;
   }
 
-  async updateDealStage(dealId: string, stage: string, probability: number): Promise<Deal | null> {
+  async updateDealStage(dealId: string, stage: 'prospecting' | 'qualification' | 'proposal' | 'negotiation' | 'closed-won' | 'closed-lost', probability: number): Promise<Deal | null> {
     const deal = this.deals.get(dealId);
     if (!deal) return null;
 
