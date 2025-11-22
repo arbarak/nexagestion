@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "MARITIME", "READ");
+    checkPermission(session, "BOAT", "READ");
 
     const { searchParams } = new URL(request.url);
     const groupId = searchParams.get("groupId");
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "MARITIME", "CREATE");
+    checkPermission(session, "BOAT", "CREATE");
 
     const body = await request.json();
     const data = createCargoSchema.parse(body);

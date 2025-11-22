@@ -17,7 +17,7 @@ export async function GET(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "MARITIME", "READ");
+    checkPermission(session, "BOAT", "READ");
 
     const cargo = await prisma.cargo.findUnique({
       where: { id: params.id },
@@ -46,7 +46,7 @@ export async function PATCH(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "MARITIME", "UPDATE");
+    checkPermission(session, "BOAT", "UPDATE");
 
     const cargo = await prisma.cargo.findUnique({
       where: { id: params.id },
