@@ -85,10 +85,11 @@ export async function DELETE(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "MARITIME", "DELETE");
+    checkPermission(session, "BOAT", "DELETE");
 
+    const { id } = await params;
     const voyage = await prisma.voyage.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!voyage) throw ErrorCodes.NOT_FOUND("Voyage not found");
@@ -96,11 +97,11 @@ export async function DELETE(
 
     // Delete associated cargo first
     await prisma.cargo.deleteMany({
-      where: { voyageId: params.id },
+      where: { voyageId: id },
     });
 
     await prisma.voyage.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ data: { success: true } });

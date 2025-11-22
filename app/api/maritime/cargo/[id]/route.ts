@@ -84,17 +84,18 @@ export async function DELETE(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "MARITIME", "DELETE");
+    checkPermission(session, "BOAT", "DELETE");
 
+    const { id } = await params;
     const cargo = await prisma.cargo.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!cargo) throw ErrorCodes.NOT_FOUND("Cargo not found");
     checkGroupAccess(session, cargo.groupId);
 
     await prisma.cargo.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ data: { success: true } });
