@@ -11,8 +11,9 @@ export async function PATCH(
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
+    const { id } = await params;
     const notification = await prisma.notification.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!notification) throw ErrorCodes.NOT_FOUND("Notification not found");
@@ -22,7 +23,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.notification.update({
-      where: { id: params.id },
+      where: { id },
       data: { read: true },
     });
 
@@ -40,17 +41,18 @@ export async function DELETE(
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
+    const { id } = await params;
     const notification = await prisma.notification.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!notification) throw ErrorCodes.NOT_FOUND("Notification not found");
 
-    if (notification.userId !== session.user.id) {
+    if (notification.userId !== session.userId) {
       throw ErrorCodes.FORBIDDEN("Cannot delete other user's notification");
     }
 
-    await prisma.notification.delete({ where: { id: params.id } });
+    await prisma.notification.delete({ where: { id } });
 
     return NextResponse.json({ data: { success: true } });
   } catch (error) {
