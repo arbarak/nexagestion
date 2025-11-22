@@ -4,6 +4,7 @@ import { verifyAuth } from '@/lib/auth';
 import { z } from 'zod';
 
 const poItemSchema = z.object({
+  id: z.string().optional(),
   description: z.string(),
   quantity: z.number(),
   unitPrice: z.number(),
@@ -81,11 +82,17 @@ export async function POST(request: NextRequest) {
       const body = await request.json();
       const { poNumber, vendorId, items } = poSchema.parse(body);
 
+      // Generate IDs for items that don't have them
+      const itemsWithIds = items.map((item: any) => ({
+        ...item,
+        id: item.id || Math.random().toString(36).substr(2, 9),
+      }));
+
       const po = await procurementService.createPurchaseOrder(
         session.companyId,
         poNumber,
         vendorId,
-        items
+        itemsWithIds
       );
 
       return NextResponse.json(po, { status: 201 });
