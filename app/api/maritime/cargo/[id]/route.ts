@@ -19,8 +19,9 @@ export async function GET(
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "BOAT", "READ");
 
+    const { id } = await params;
     const cargo = await prisma.cargo.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         voyage: {
           include: {
@@ -48,8 +49,9 @@ export async function PATCH(
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "BOAT", "UPDATE");
 
+    const { id } = await params;
     const cargo = await prisma.cargo.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!cargo) throw ErrorCodes.NOT_FOUND("Cargo not found");
@@ -59,7 +61,7 @@ export async function PATCH(
     const data = updateCargoSchema.parse(body);
 
     const updated = await prisma.cargo.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: data.status,
         description: data.description,

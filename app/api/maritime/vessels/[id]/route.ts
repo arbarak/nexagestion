@@ -20,8 +20,9 @@ export async function GET(
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "BOAT", "READ");
 
+    const { id } = await params;
     const vessel = await prisma.vessel.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         voyages: {
           orderBy: { createdAt: "desc" },
@@ -48,8 +49,9 @@ export async function PATCH(
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "BOAT", "UPDATE");
 
+    const { id } = await params;
     const vessel = await prisma.vessel.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!vessel) throw ErrorCodes.NOT_FOUND("Vessel not found");
@@ -59,7 +61,7 @@ export async function PATCH(
     const data = updateVesselSchema.parse(body);
 
     const updated = await prisma.vessel.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         vesselName: data.vesselName,
         status: data.status,
