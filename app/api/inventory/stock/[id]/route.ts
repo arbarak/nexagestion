@@ -17,10 +17,11 @@ export async function GET(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "INVENTORY", "READ");
+    checkPermission(session, "STOCK", "READ");
 
+    const { id } = await params;
     const stock = await prisma.stock.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         product: true,
         movements: {
@@ -46,10 +47,11 @@ export async function PATCH(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "INVENTORY", "UPDATE");
+    checkPermission(session, "STOCK", "UPDATE");
 
+    const { id } = await params;
     const stock = await prisma.stock.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!stock) throw ErrorCodes.NOT_FOUND("Stock not found");
@@ -59,7 +61,7 @@ export async function PATCH(
     const data = updateStockSchema.parse(body);
 
     const updated = await prisma.stock.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         quantity: data.quantity,
         warehouseLocation: data.warehouseLocation,
@@ -82,10 +84,11 @@ export async function DELETE(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "INVENTORY", "DELETE");
+    checkPermission(session, "STOCK", "DELETE");
 
+    const { id } = await params;
     const stock = await prisma.stock.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!stock) throw ErrorCodes.NOT_FOUND("Stock not found");
@@ -93,11 +96,11 @@ export async function DELETE(
 
     // Delete associated movements first
     await prisma.stockMovement.deleteMany({
-      where: { stockId: params.id },
+      where: { stockId: id },
     });
 
     await prisma.stock.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ data: { success: true } });

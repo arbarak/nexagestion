@@ -20,7 +20,7 @@ export async function GET(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_INVOICE", "READ");
+    checkPermission(session, "INVOICE", "READ");
 
     const invoice = await prisma.purchaseInvoice.findUnique({
       where: { id: params.id },

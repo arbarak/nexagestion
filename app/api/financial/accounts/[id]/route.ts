@@ -75,17 +75,18 @@ export async function DELETE(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "FINANCIAL", "DELETE");
+    checkPermission(session, "PAYMENT", "DELETE");
 
+    const { id } = await params;
     const account = await prisma.account.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!account) throw ErrorCodes.NOT_FOUND("Account not found");
 
     checkGroupAccess(session, account.groupId);
 
-    await prisma.account.delete({ where: { id: params.id } });
+    await prisma.account.delete({ where: { id } });
 
     return NextResponse.json({ data: { success: true } });
   } catch (error) {

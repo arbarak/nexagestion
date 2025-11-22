@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "INVENTORY", "READ");
+    checkPermission(session, "STOCK", "READ");
 
     const { searchParams } = new URL(request.url);
     const groupId = searchParams.get("groupId");
