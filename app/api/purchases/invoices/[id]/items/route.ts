@@ -22,15 +22,16 @@ export async function GET(
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "INVOICE", "READ");
 
+    const { id } = await params;
     const invoice = await prisma.purchaseInvoice.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!invoice) throw ErrorCodes.NOT_FOUND("Purchase invoice not found");
     checkGroupAccess(session, invoice.groupId);
 
     const items = await prisma.purchaseInvoiceItem.findMany({
-      where: { invoiceId: params.id },
+      where: { invoiceId: id },
       include: {
         product: true,
         taxRate: true,
@@ -50,10 +51,11 @@ export async function POST(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_INVOICE", "UPDATE");
+    checkPermission(session, "INVOICE", "UPDATE");
 
+    const { id } = await params;
     const invoice = await prisma.purchaseInvoice.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!invoice) throw ErrorCodes.NOT_FOUND("Purchase invoice not found");
@@ -83,7 +85,7 @@ export async function POST(
 
     const item = await prisma.purchaseInvoiceItem.create({
       data: {
-        invoiceId: params.id,
+        invoiceId: id,
         productId: data.productId,
         quantity: data.quantity,
         unitPrice: data.unitPrice,
@@ -101,14 +103,14 @@ export async function POST(
 
     // Update invoice totals
     const allItems = await prisma.purchaseInvoiceItem.findMany({
-      where: { invoiceId: params.id },
+      where: { invoiceId: id },
     });
 
     const totalAmount_all = allItems.reduce((sum, item) => sum + item.totalAmount, 0);
     const totalTax_all = allItems.reduce((sum, item) => sum + item.taxAmount, 0);
 
     await prisma.purchaseInvoice.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         totalAmount: totalAmount_all,
         totalTax: totalTax_all,
