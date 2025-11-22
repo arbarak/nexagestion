@@ -17,7 +17,7 @@ export async function PATCH(
 
     if (!notification) throw ErrorCodes.NOT_FOUND("Notification not found");
 
-    if (notification.userId !== session.user.id) {
+    if (notification.userId !== session.userId) {
       throw ErrorCodes.FORBIDDEN("Cannot update other user's notification");
     }
 

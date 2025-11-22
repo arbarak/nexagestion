@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const metrics = await prisma.performanceMetric.findMany({
       where: {
-        companyId: session.user.companyId,
+        companyId: session.companyId,
         createdAt: { gte: startDate },
       },
       orderBy: { createdAt: "desc" },
@@ -74,8 +74,8 @@ export async function POST(request: NextRequest) {
 
     const metric = await prisma.performanceMetric.create({
       data: {
-        groupId: session.user.groupId,
-        companyId: session.user.companyId,
+        groupId: session.userId,
+        companyId: session.companyId,
         page: data.page,
         loadTime: data.loadTime,
         firstContentfulPaint: data.firstContentfulPaint,

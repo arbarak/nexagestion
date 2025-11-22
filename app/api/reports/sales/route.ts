@@ -17,8 +17,6 @@ export async function GET(request: NextRequest) {
       throw ErrorCodes.VALIDATION_ERROR("companyId is required");
     }
 
-    checkGroupAccess(session, session.user.groupId);
-
     // Get sales data
     const sales = await prisma.sale.findMany({
       where: { companyId },

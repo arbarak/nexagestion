@@ -19,7 +19,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { module, data } = importSchema.parse(body);
 
-    checkGroupAccess(session, session.user.groupId);
+    if (!session.companyId) {
+      throw ErrorCodes.VALIDATION_ERROR("companyId is required");
+    }
 
     let importedCount = 0;
     const errors: string[] = [];
@@ -30,8 +32,8 @@ export async function POST(request: NextRequest) {
         try {
           await prisma.employee.create({
             data: {
-              groupId: session.user.groupId,
-              companyId: session.user.companyId,
+              groupId: session.userId,
+              companyId: session.companyId,
               firstName: row.firstName || "",
               lastName: row.lastName || "",
               email: row.email || "",
@@ -52,8 +54,8 @@ export async function POST(request: NextRequest) {
         try {
           await prisma.account.create({
             data: {
-              groupId: session.user.groupId,
-              companyId: session.user.companyId,
+              groupId: session.userId,
+              companyId: session.companyId,
               accountCode: row.accountCode || "",
               accountName: row.accountName || "",
               accountType: row.accountType || "ASSET",

@@ -18,8 +18,6 @@ export async function GET(request: NextRequest) {
       throw ErrorCodes.VALIDATION_ERROR("companyId is required");
     }
 
-    checkGroupAccess(session, session.user.groupId);
-
     if (reportType === "balance-sheet") {
       const assets = await prisma.account.findMany({
         where: { companyId, accountType: "ASSET" },
