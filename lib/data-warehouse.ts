@@ -1,5 +1,4 @@
 import { prisma } from './prisma';
-import type { Order, Stock, Invoice } from '@prisma/client';
 
 export interface DimensionTable {
   id: string;

@@ -18,7 +18,7 @@ export async function GET(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "FINANCIAL", "READ");
+    checkPermission(session, "PAYMENT", "READ");
 
     const account = await prisma.account.findUnique({
       where: { id: params.id },
@@ -42,7 +42,7 @@ export async function PATCH(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "FINANCIAL", "UPDATE");
+    checkPermission(session, "PAYMENT", "UPDATE");
 
     const account = await prisma.account.findUnique({
       where: { id: params.id },

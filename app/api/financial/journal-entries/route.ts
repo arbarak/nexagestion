@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "FINANCIAL", "READ");
+    checkPermission(session, "PAYMENT", "READ");
 
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get("companyId");

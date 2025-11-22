@@ -72,7 +72,7 @@ export class ReportBuilder {
       status: string;
     }
 
-    const rows: InventoryRow[] = stocks.map((stock) => ({
+    const rows: InventoryRow[] = stocks.map((stock: any) => ({
       productName: stock.product?.name,
       category: stock.category?.name,
       quantity: stock.quantity,
@@ -109,7 +109,7 @@ export class ReportBuilder {
       createdAt: Date;
     }
 
-    const rows: FinancialRow[] = invoices.map((invoice) => ({
+    const rows: FinancialRow[] = invoices.map((invoice: any) => ({
       invoiceNumber: invoice.invoiceNumber,
       amount: invoice.amount,
       status: invoice.status,

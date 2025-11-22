@@ -56,7 +56,7 @@ export class AnalyticsService {
       },
     });
 
-    const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+    const totalRevenue = orders.reduce((sum: number, order: any) => sum + (order.totalAmount || 0), 0);
     const totalOrders = orders.length;
     const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
@@ -121,7 +121,7 @@ export class AnalyticsService {
       topClients: [],
       revenueByMonth: [],
       ordersByStatus: Object.fromEntries(
-        ordersByStatus.map(item => [item.status, item._count])
+        ordersByStatus.map((item: any) => [item.status, item._count])
       ),
     };
   }
@@ -132,9 +132,9 @@ export class AnalyticsService {
       include: { product: true },
     });
 
-    const totalItems = stocks.reduce((sum, stock) => sum + stock.quantity, 0);
-    const lowStockItems = stocks.filter(s => s.quantity < (s.minimumLevel || 10)).length;
-    const stockValue = stocks.reduce((sum, stock) => sum + (stock.quantity * (stock.product?.price || 0)), 0);
+    const totalItems = stocks.reduce((sum: number, stock: any) => sum + stock.quantity, 0);
+    const lowStockItems = stocks.filter((s: any) => s.quantity < (s.minimumLevel || 10)).length;
+    const stockValue = stocks.reduce((sum: number, stock: any) => sum + (stock.quantity * (stock.product?.price || 0)), 0);
 
     // Get stock by category
     const stockByCategory = await prisma.stock.groupBy({
@@ -184,12 +184,12 @@ export class AnalyticsService {
     });
 
     const totalRevenue = invoices
-      .filter(i => i.status === 'paid')
-      .reduce((sum, i) => sum + (i.amount || 0), 0);
+      .filter((i: any) => i.status === 'paid')
+      .reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
 
     const accountsReceivable = invoices
-      .filter(i => i.status !== 'paid')
-      .reduce((sum, i) => sum + (i.amount || 0), 0);
+      .filter((i: any) => i.status !== 'paid')
+      .reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
 
     return {
       totalRevenue: {
