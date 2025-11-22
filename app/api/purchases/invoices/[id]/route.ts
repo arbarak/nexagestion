@@ -21,7 +21,7 @@ export async function GET(
     const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_INVOICE", "READ");
+    checkPermission(session, "INVOICE", "READ");
 
     const invoice = await prisma.purchaseInvoice.findUnique({
       where: { id: id },
@@ -50,9 +50,10 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_INVOICE", "UPDATE");
+    checkPermission(session, "INVOICE", "UPDATE");
 
     const invoice = await prisma.purchaseInvoice.findUnique({
       where: { id: id },
@@ -90,9 +91,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_INVOICE", "DELETE");
+    checkPermission(session, "INVOICE", "DELETE");
 
     const invoice = await prisma.purchaseInvoice.findUnique({
       where: { id: id },
