@@ -20,8 +20,9 @@ export async function GET(
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "PAYMENT", "READ");
 
+    const { id } = await params;
     const account = await prisma.account.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { transactions: { take: 10, orderBy: { createdAt: "desc" } } },
     });
 
@@ -44,8 +45,9 @@ export async function PATCH(
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "PAYMENT", "UPDATE");
 
+    const { id } = await params;
     const account = await prisma.account.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!account) throw ErrorCodes.NOT_FOUND("Account not found");
@@ -56,7 +58,7 @@ export async function PATCH(
     const data = updateAccountSchema.parse(body);
 
     const updated = await prisma.account.update({
-      where: { id: params.id },
+      where: { id },
       data,
     });
 

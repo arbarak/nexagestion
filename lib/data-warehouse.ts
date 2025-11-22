@@ -27,7 +27,7 @@ export class DataWarehouse {
       },
     });
 
-    const facts = orders.map((order: Order & { items: any[] }) => ({
+    const facts = orders.map((order: any) => ({
       orderId: order.id,
       clientId: order.clientId,
       totalAmount: order.totalAmount,
@@ -46,7 +46,7 @@ export class DataWarehouse {
       include: { product: true },
     });
 
-    const facts = stocks.map((stock: Stock & { product?: any }) => ({
+    const facts = stocks.map((stock: any) => ({
       productId: stock.productId,
       quantity: stock.quantity,
       value: stock.quantity * (stock.product?.price || 0),
@@ -63,7 +63,7 @@ export class DataWarehouse {
       where: { companyId },
     });
 
-    const facts = invoices.map((invoice: Invoice) => ({
+    const facts = invoices.map((invoice: any) => ({
       invoiceId: invoice.id,
       amount: invoice.amount,
       status: invoice.status,
