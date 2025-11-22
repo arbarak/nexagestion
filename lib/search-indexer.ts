@@ -1,6 +1,5 @@
 import { searchService } from './search-service';
 import { prisma } from './prisma';
-import type { Order, Invoice, Product, Client } from '@prisma/client';
 
 export class SearchIndexer {
   async indexOrders(companyId: string): Promise<number> {
@@ -28,7 +27,7 @@ export class SearchIndexer {
       };
     }
 
-    const documents: OrderDocument[] = orders.map((order: Order & { client?: Client | null }) => ({
+    const documents: OrderDocument[] = orders.map((order: any) => ({
       id: order.id,
       data: {
         type: 'order',
@@ -59,7 +58,7 @@ export class SearchIndexer {
       },
     });
 
-    const documents = invoices.map((invoice: Invoice & { order?: Order | null }) => ({
+    const documents = invoices.map((invoice: any) => ({
       id: invoice.id,
       data: {
         type: 'invoice',
@@ -91,7 +90,7 @@ export class SearchIndexer {
       },
     });
 
-    const documents = products.map((product: Product & { category?: { name: string } | null; brand?: { name: string } | null }) => ({
+    const documents = products.map((product: any) => ({
       id: product.id,
       data: {
         type: 'product',
@@ -120,7 +119,7 @@ export class SearchIndexer {
       where: { companyId },
     });
 
-    const documents = clients.map((client: Client) => ({
+    const documents = clients.map((client: any) => ({
       id: client.id,
       data: {
         type: 'client',

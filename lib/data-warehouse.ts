@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import type { Order, Stock, Invoice } from '@prisma/client';
 
 export interface DimensionTable {
   id: string;
@@ -27,7 +28,7 @@ export class DataWarehouse {
       },
     });
 
-    const facts = orders.map(order => ({
+    const facts = orders.map((order: Order & { items: any[] }) => ({
       orderId: order.id,
       clientId: order.clientId,
       totalAmount: order.totalAmount,
@@ -46,7 +47,7 @@ export class DataWarehouse {
       include: { product: true },
     });
 
-    const facts = stocks.map(stock => ({
+    const facts = stocks.map((stock: Stock & { product?: any }) => ({
       productId: stock.productId,
       quantity: stock.quantity,
       value: stock.quantity * (stock.product?.price || 0),
@@ -63,7 +64,7 @@ export class DataWarehouse {
       where: { companyId },
     });
 
-    const facts = invoices.map(invoice => ({
+    const facts = invoices.map((invoice: Invoice) => ({
       invoiceId: invoice.id,
       amount: invoice.amount,
       status: invoice.status,

@@ -27,7 +27,7 @@ export class PredictiveInsights {
       },
     });
 
-    const currentRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+    const currentRevenue = orders.reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0);
     const avgDaily = currentRevenue / days;
     const predictedRevenue = avgDaily * days * 1.15; // 15% growth prediction
 
@@ -47,8 +47,8 @@ export class PredictiveInsights {
       include: { product: true },
     });
 
-    const lowStockCount = stocks.filter(s => s.quantity < (s.minimumLevel || 10)).length;
-    const totalItems = stocks.reduce((sum, s) => sum + s.quantity, 0);
+    const lowStockCount = stocks.filter((s: any) => s.quantity < (s.minimumLevel || 10)).length;
+    const totalItems = stocks.reduce((sum: number, s: any) => sum + s.quantity, 0);
 
     return {
       metric: 'Inventory Needs',

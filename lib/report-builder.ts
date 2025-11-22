@@ -33,7 +33,7 @@ export class ReportBuilder {
       include: { items: true, client: true },
     });
 
-    const rows = orders.map(order => ({
+    const rows = orders.map((order: any) => ({
       orderNumber: order.orderNumber,
       clientName: order.client?.name,
       totalAmount: order.totalAmount,
@@ -44,8 +44,8 @@ export class ReportBuilder {
 
     const summary = {
       totalOrders: rows.length,
-      totalRevenue: rows.reduce((sum, r) => sum + (r.totalAmount || 0), 0),
-      averageOrderValue: rows.length > 0 ? rows.reduce((sum, r) => sum + (r.totalAmount || 0), 0) / rows.length : 0,
+      totalRevenue: rows.reduce((sum: number, r: any) => sum + (r.totalAmount || 0), 0),
+      averageOrderValue: rows.length > 0 ? rows.reduce((sum: number, r: any) => sum + (r.totalAmount || 0), 0) / rows.length : 0,
     };
 
     return {

@@ -174,7 +174,7 @@ export class CRMService {
     return leads;
   }
 
-  async updateLeadStatus(leadId: string, status: string, probability?: number): Promise<Lead | null> {
+  async updateLeadStatus(leadId: string, status: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost', probability?: number): Promise<Lead | null> {
     const lead = this.leads.get(leadId);
     if (!lead) return null;
 
