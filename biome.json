@@ -8,7 +8,6 @@
     "rules": {
       "recommended": true,
       "style": {
-        "noImplicitAny": "error",
         "useConst": "warn"
       },
       "suspicious": {
@@ -20,7 +19,7 @@
     "enabled": true,
     "formatWithErrors": false,
     "indentStyle": "space",
-    "indentSize": 2,
+    "indentWidth": 2,
     "lineWidth": 100,
     "lineEnding": "lf"
   },
@@ -31,7 +30,7 @@
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
       "semicolons": "always",
-      "singleQuotes": false,
+      "quoteStyle": "double",
       "trailingCommas": "es5"
     }
   },
@@ -44,7 +43,7 @@
     {
       "include": ["**/*.json"],
       "formatter": {
-        "indentSize": 2
+        "indentWidth": 2
       }
     }
   ]

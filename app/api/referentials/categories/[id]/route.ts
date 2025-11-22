@@ -16,13 +16,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "READ");
 
     const category = await prisma.category.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!category) throw ErrorCodes.NOT_FOUND("Category not found");
@@ -40,13 +41,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "UPDATE");
 
     const category = await prisma.category.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!category) throw ErrorCodes.NOT_FOUND("Category not found");
@@ -57,7 +59,7 @@ export async function PATCH(
     const data = updateCategorySchema.parse(body);
 
     const updated = await prisma.category.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     });
 
@@ -72,13 +74,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "DELETE");
 
     const category = await prisma.category.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!category) throw ErrorCodes.NOT_FOUND("Category not found");
@@ -86,7 +89,7 @@ export async function DELETE(
     checkGroupAccess(session, category.groupId);
 
     await prisma.category.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ message: "Category deleted successfully" });

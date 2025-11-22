@@ -18,12 +18,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_INVOICE", "READ");
+    checkPermission(session, "INVOICE", "READ");
 
     const invoice = await prisma.salesInvoice.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         client: true,
         items: {
@@ -49,12 +50,13 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_INVOICE", "UPDATE");
+    checkPermission(session, "INVOICE", "UPDATE");
 
     const invoice = await prisma.salesInvoice.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!invoice) throw ErrorCodes.NOT_FOUND("Sales invoice not found");
@@ -64,7 +66,7 @@ export async function PATCH(
     const data = updateSalesInvoiceSchema.parse(body);
 
     const updated = await prisma.salesInvoice.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         invoiceNumber: data.invoiceNumber,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
@@ -89,12 +91,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_INVOICE", "DELETE");
+    checkPermission(session, "INVOICE", "DELETE");
 
     const invoice = await prisma.salesInvoice.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!invoice) throw ErrorCodes.NOT_FOUND("Sales invoice not found");
@@ -102,11 +105,11 @@ export async function DELETE(
 
     // Delete associated items first
     await prisma.salesInvoiceItem.deleteMany({
-      where: { invoiceId: params.id },
+      where: { invoiceId: id },
     });
 
     await prisma.salesInvoice.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ data: { success: true } });

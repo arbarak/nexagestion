@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "MARITIME", "CREATE");
+    checkPermission(session, "BOAT", "CREATE");
 
     const body = await request.json();
     const data = createVesselSchema.parse(body);

@@ -89,10 +89,11 @@ export async function DELETE(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "USERS", "DELETE");
+    checkPermission(session, "USER", "DELETE");
 
+    const { id } = await params;
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!user) throw ErrorCodes.NOT_FOUND("User not found");

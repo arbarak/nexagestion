@@ -23,13 +23,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "SUPPLIER", "READ");
 
     const supplier = await prisma.supplier.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!supplier) throw ErrorCodes.NOT_FOUND("Supplier not found");
@@ -47,13 +48,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "SUPPLIER", "UPDATE");
 
     const supplier = await prisma.supplier.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!supplier) throw ErrorCodes.NOT_FOUND("Supplier not found");
@@ -64,7 +66,7 @@ export async function PATCH(
     const data = updateSupplierSchema.parse(body);
 
     const updated = await prisma.supplier.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     });
 
@@ -79,13 +81,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "SUPPLIER", "DELETE");
 
     const supplier = await prisma.supplier.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!supplier) throw ErrorCodes.NOT_FOUND("Supplier not found");
@@ -93,7 +96,7 @@ export async function DELETE(
     checkGroupAccess(session, supplier.groupId);
 
     await prisma.supplier.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ message: "Supplier deleted successfully" });

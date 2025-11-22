@@ -18,12 +18,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "PURCHASE_INVOICE", "READ");
 
     const invoice = await prisma.purchaseInvoice.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         supplier: true,
         items: {
@@ -54,7 +55,7 @@ export async function PATCH(
     checkPermission(session, "PURCHASE_INVOICE", "UPDATE");
 
     const invoice = await prisma.purchaseInvoice.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!invoice) throw ErrorCodes.NOT_FOUND("Purchase invoice not found");
@@ -64,7 +65,7 @@ export async function PATCH(
     const data = updatePurchaseInvoiceSchema.parse(body);
 
     const updated = await prisma.purchaseInvoice.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         invoiceNumber: data.invoiceNumber,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
@@ -94,7 +95,7 @@ export async function DELETE(
     checkPermission(session, "PURCHASE_INVOICE", "DELETE");
 
     const invoice = await prisma.purchaseInvoice.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!invoice) throw ErrorCodes.NOT_FOUND("Purchase invoice not found");
@@ -102,11 +103,11 @@ export async function DELETE(
 
     // Delete associated items first
     await prisma.purchaseInvoiceItem.deleteMany({
-      where: { invoiceId: params.id },
+      where: { invoiceId: id },
     });
 
     await prisma.purchaseInvoice.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ data: { success: true } });

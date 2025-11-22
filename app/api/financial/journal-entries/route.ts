@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "FINANCIAL", "CREATE");
+    checkPermission(session, "PAYMENT", "CREATE");
 
     const body = await request.json();
     const data = createJournalEntrySchema.parse(body);

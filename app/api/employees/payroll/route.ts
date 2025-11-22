@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEES", "READ");
+    checkPermission(session, "EMPLOYEE", "READ");
 
     const { searchParams } = new URL(request.url);
     const employeeId = searchParams.get("employeeId");
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEES", "CREATE");
+    checkPermission(session, "EMPLOYEE", "CREATE");
 
     const body = await request.json();
     const data = createPayrollSchema.parse(body);

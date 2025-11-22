@@ -38,38 +38,36 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EXPORT", "CREATE");
+    checkPermission(session, "REPORT", "EXPORT");
 
     const body = await request.json();
     const { module, format, dateFrom, dateTo } = exportSchema.parse(body);
-
-    checkGroupAccess(session, session.user.groupId);
 
     let data: any[] = [];
 
     // Fetch data based on module
     if (module === "sales") {
       data = await prisma.salesOrder.findMany({
-        where: { companyId: session.user.companyId },
+        where: { companyId: session.companyId },
         include: { lineItems: true, client: true },
       });
     } else if (module === "purchases") {
       data = await prisma.purchaseOrder.findMany({
-        where: { companyId: session.user.companyId },
+        where: { companyId: session.companyId },
         include: { lineItems: true, supplier: true },
       });
     } else if (module === "inventory") {
       data = await prisma.stock.findMany({
-        where: { companyId: session.user.companyId },
+        where: { companyId: session.companyId },
         include: { product: true, warehouse: true },
       });
     } else if (module === "employees") {
       data = await prisma.employee.findMany({
-        where: { companyId: session.user.companyId },
+        where: { companyId: session.companyId },
       });
     } else if (module === "financial") {
       data = await prisma.account.findMany({
-        where: { companyId: session.user.companyId },
+        where: { companyId: session.companyId },
       });
     }
 

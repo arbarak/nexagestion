@@ -18,19 +18,20 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_ORDER", "READ");
+    checkPermission(session, "SALE", "READ");
 
     const order = await prisma.salesOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!order) throw ErrorCodes.NOT_FOUND("Sales order not found");
     checkGroupAccess(session, order.groupId);
 
     const items = await prisma.salesOrderItem.findMany({
-      where: { orderId: params.id },
+      where: { orderId: id },
       include: {
         product: true,
         taxRate: true,
@@ -48,12 +49,13 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_ORDER", "UPDATE");
+    checkPermission(session, "SALE", "UPDATE");
 
     const order = await prisma.salesOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!order) throw ErrorCodes.NOT_FOUND("Sales order not found");
@@ -83,7 +85,7 @@ export async function POST(
 
     const item = await prisma.salesOrderItem.create({
       data: {
-        orderId: params.id,
+        orderId: id,
         productId: data.productId,
         quantity: data.quantity,
         unitPrice: data.unitPrice,
@@ -101,14 +103,14 @@ export async function POST(
 
     // Update order totals
     const allItems = await prisma.salesOrderItem.findMany({
-      where: { orderId: params.id },
+      where: { orderId: id },
     });
 
     const totalAmount_all = allItems.reduce((sum, item) => sum + item.totalAmount, 0);
     const totalTax_all = allItems.reduce((sum, item) => sum + item.taxAmount, 0);
 
     await prisma.salesOrder.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         totalAmount: totalAmount_all,
         totalTax: totalTax_all,

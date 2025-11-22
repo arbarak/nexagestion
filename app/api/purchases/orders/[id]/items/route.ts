@@ -18,19 +18,20 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "PURCHASE_ORDER", "READ");
 
     const order = await prisma.purchaseOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!order) throw ErrorCodes.NOT_FOUND("Purchase order not found");
     checkGroupAccess(session, order.groupId);
 
     const items = await prisma.purchaseOrderItem.findMany({
-      where: { orderId: params.id },
+      where: { orderId: id },
       include: {
         product: true,
         taxRate: true,
@@ -53,7 +54,7 @@ export async function POST(
     checkPermission(session, "PURCHASE_ORDER", "UPDATE");
 
     const order = await prisma.purchaseOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!order) throw ErrorCodes.NOT_FOUND("Purchase order not found");
@@ -83,7 +84,7 @@ export async function POST(
 
     const item = await prisma.purchaseOrderItem.create({
       data: {
-        orderId: params.id,
+        orderId: id,
         productId: data.productId,
         quantity: data.quantity,
         unitPrice: data.unitPrice,
@@ -101,14 +102,14 @@ export async function POST(
 
     // Update order totals
     const allItems = await prisma.purchaseOrderItem.findMany({
-      where: { orderId: params.id },
+      where: { orderId: id },
     });
 
     const totalAmount_all = allItems.reduce((sum, item) => sum + item.totalAmount, 0);
     const totalTax_all = allItems.reduce((sum, item) => sum + item.taxAmount, 0);
 
     await prisma.purchaseOrder.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         totalAmount: totalAmount_all,
         totalTax: totalTax_all,

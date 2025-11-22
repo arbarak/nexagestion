@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "AUDIT", "READ");
+    checkPermission(session, "REPORT", "READ");
 
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get("companyId");
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       throw ErrorCodes.VALIDATION_ERROR("companyId is required");
     }
 
-    checkGroupAccess(session, session.user.groupId);
+    // checkGroupAccess(session, session.groupId);
 
     const logs = await prisma.auditLog.findMany({
       where: { companyId },

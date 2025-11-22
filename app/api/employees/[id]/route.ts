@@ -22,10 +22,11 @@ export async function GET(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEES", "READ");
+    checkPermission(session, "EMPLOYEE", "READ");
 
+    const { id } = await params;
     const employee = await prisma.employee.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         attendance: {
           orderBy: { date: "desc" },
@@ -50,10 +51,11 @@ export async function PATCH(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEES", "UPDATE");
+    checkPermission(session, "EMPLOYEE", "UPDATE");
 
+    const { id } = await params;
     const employee = await prisma.employee.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!employee) throw ErrorCodes.NOT_FOUND("Employee not found");
@@ -63,7 +65,7 @@ export async function PATCH(
     const data = updateEmployeeSchema.parse(body);
 
     const updated = await prisma.employee.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         firstName: data.firstName,
         lastName: data.lastName,
@@ -88,10 +90,11 @@ export async function DELETE(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEES", "DELETE");
+    checkPermission(session, "EMPLOYEE", "DELETE");
 
+    const { id } = await params;
     const employee = await prisma.employee.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!employee) throw ErrorCodes.NOT_FOUND("Employee not found");
@@ -99,11 +102,11 @@ export async function DELETE(
 
     // Delete associated attendance records
     await prisma.attendance.deleteMany({
-      where: { employeeId: params.id },
+      where: { employeeId: id },
     });
 
     await prisma.employee.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ data: { success: true } });

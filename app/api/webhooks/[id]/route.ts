@@ -17,12 +17,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "WEBHOOKS", "READ");
 
     const webhook = await prisma.webhook.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: { deliveries: { take: 10, orderBy: { createdAt: "desc" } } },
     });
 
@@ -41,12 +42,13 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "WEBHOOKS", "UPDATE");
 
     const webhook = await prisma.webhook.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!webhook) throw ErrorCodes.NOT_FOUND("Webhook not found");
@@ -57,7 +59,7 @@ export async function PATCH(
     const data = updateWebhookSchema.parse(body);
 
     const updated = await prisma.webhook.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     });
 
@@ -72,19 +74,20 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "WEBHOOKS", "DELETE");
 
     const webhook = await prisma.webhook.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!webhook) throw ErrorCodes.NOT_FOUND("Webhook not found");
 
     checkGroupAccess(session, webhook.groupId);
 
-    await prisma.webhook.delete({ where: { id: params.id } });
+    await prisma.webhook.delete({ where: { id: id } });
 
     return NextResponse.json({ data: { success: true } });
   } catch (error) {

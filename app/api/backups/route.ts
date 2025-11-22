@@ -69,8 +69,8 @@ export async function GET(request: NextRequest) {
     // Calculate statistics
     const stats = {
       total: backups.length,
-      successful: backups.filter(b => b.status === 'success').length,
-      failed: backups.filter(b => b.status === 'failed').length,
+      successful: backups.filter((b: any) => b.status === 'success').length,
+      failed: backups.filter((b: any) => b.status === 'failed').length,
       totalSize: backups.reduce((sum: number, b: any) => sum + b.size, 0n),
     };
 

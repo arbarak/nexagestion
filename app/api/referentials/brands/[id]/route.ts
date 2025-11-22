@@ -16,13 +16,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "READ");
 
     const brand = await prisma.brand.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!brand) throw ErrorCodes.NOT_FOUND("Brand not found");
@@ -40,13 +41,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "UPDATE");
 
     const brand = await prisma.brand.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!brand) throw ErrorCodes.NOT_FOUND("Brand not found");
@@ -57,7 +59,7 @@ export async function PATCH(
     const data = updateBrandSchema.parse(body);
 
     const updated = await prisma.brand.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     });
 
@@ -72,13 +74,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "DELETE");
 
     const brand = await prisma.brand.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!brand) throw ErrorCodes.NOT_FOUND("Brand not found");
@@ -86,7 +89,7 @@ export async function DELETE(
     checkGroupAccess(session, brand.groupId);
 
     await prisma.brand.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ message: "Brand deleted successfully" });

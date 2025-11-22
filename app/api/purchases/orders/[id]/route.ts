@@ -17,12 +17,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_ORDER", "READ");
+    checkPermission(session, "PURCHASE", "READ");
 
     const order = await prisma.purchaseOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         supplier: true,
         items: {
@@ -50,10 +51,10 @@ export async function PATCH(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_ORDER", "UPDATE");
+    checkPermission(session, "PURCHASE", "UPDATE");
 
     const order = await prisma.purchaseOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!order) throw ErrorCodes.NOT_FOUND("Purchase order not found");
@@ -63,7 +64,7 @@ export async function PATCH(
     const data = updatePurchaseOrderSchema.parse(body);
 
     const updated = await prisma.purchaseOrder.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         orderNumber: data.orderNumber,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
@@ -89,10 +90,10 @@ export async function DELETE(
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_ORDER", "DELETE");
+    checkPermission(session, "PURCHASE", "DELETE");
 
     const order = await prisma.purchaseOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!order) throw ErrorCodes.NOT_FOUND("Purchase order not found");
@@ -100,11 +101,11 @@ export async function DELETE(
 
     // Delete associated items first
     await prisma.purchaseOrderItem.deleteMany({
-      where: { orderId: params.id },
+      where: { orderId: id },
     });
 
     await prisma.purchaseOrder.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ data: { success: true } });

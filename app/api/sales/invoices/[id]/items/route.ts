@@ -18,19 +18,20 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_INVOICE", "READ");
+    checkPermission(session, "INVOICE", "READ");
 
     const invoice = await prisma.salesInvoice.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!invoice) throw ErrorCodes.NOT_FOUND("Sales invoice not found");
     checkGroupAccess(session, invoice.groupId);
 
     const items = await prisma.salesInvoiceItem.findMany({
-      where: { invoiceId: params.id },
+      where: { invoiceId: id },
       include: {
         product: true,
         taxRate: true,
@@ -48,12 +49,13 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_INVOICE", "UPDATE");
+    checkPermission(session, "INVOICE", "UPDATE");
 
     const invoice = await prisma.salesInvoice.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!invoice) throw ErrorCodes.NOT_FOUND("Sales invoice not found");
@@ -83,7 +85,7 @@ export async function POST(
 
     const item = await prisma.salesInvoiceItem.create({
       data: {
-        invoiceId: params.id,
+        invoiceId: id,
         productId: data.productId,
         quantity: data.quantity,
         unitPrice: data.unitPrice,
@@ -101,14 +103,14 @@ export async function POST(
 
     // Update invoice totals
     const allItems = await prisma.salesInvoiceItem.findMany({
-      where: { invoiceId: params.id },
+      where: { invoiceId: id },
     });
 
     const totalAmount_all = allItems.reduce((sum, item) => sum + item.totalAmount, 0);
     const totalTax_all = allItems.reduce((sum, item) => sum + item.taxAmount, 0);
 
     await prisma.salesInvoice.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         totalAmount: totalAmount_all,
         totalTax: totalTax_all,

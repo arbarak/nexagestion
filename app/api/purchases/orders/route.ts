@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_ORDER", "READ");
+    checkPermission(session, "PURCHASE", "READ");
 
     const { searchParams } = new URL(request.url);
     const groupId = searchParams.get("groupId");
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "PURCHASE_ORDER", "CREATE");
+    checkPermission(session, "PURCHASE", "CREATE");
 
     const body = await request.json();
     const data = createPurchaseOrderSchema.parse(body);

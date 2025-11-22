@@ -23,13 +23,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "CLIENT", "READ");
 
     const client = await prisma.client.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!client) throw ErrorCodes.NOT_FOUND("Client not found");
@@ -47,13 +48,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "CLIENT", "UPDATE");
 
     const client = await prisma.client.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!client) throw ErrorCodes.NOT_FOUND("Client not found");
@@ -64,7 +66,7 @@ export async function PATCH(
     const data = updateClientSchema.parse(body);
 
     const updated = await prisma.client.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     });
 
@@ -79,13 +81,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "CLIENT", "DELETE");
 
     const client = await prisma.client.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!client) throw ErrorCodes.NOT_FOUND("Client not found");
@@ -93,7 +96,7 @@ export async function DELETE(
     checkGroupAccess(session, client.groupId);
 
     await prisma.client.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ message: "Client deleted successfully" });

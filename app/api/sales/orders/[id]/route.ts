@@ -17,12 +17,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_ORDER", "READ");
+    checkPermission(session, "SALE", "READ");
 
     const order = await prisma.salesOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
       include: {
         client: true,
         items: {
@@ -48,12 +49,13 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_ORDER", "UPDATE");
+    checkPermission(session, "SALE", "UPDATE");
 
     const order = await prisma.salesOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!order) throw ErrorCodes.NOT_FOUND("Sales order not found");
@@ -63,7 +65,7 @@ export async function PATCH(
     const data = updateSalesOrderSchema.parse(body);
 
     const updated = await prisma.salesOrder.update({
-      where: { id: params.id },
+      where: { id: id },
       data: {
         orderNumber: data.orderNumber,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
@@ -87,12 +89,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "SALES_ORDER", "DELETE");
+    checkPermission(session, "SALE", "DELETE");
 
     const order = await prisma.salesOrder.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!order) throw ErrorCodes.NOT_FOUND("Sales order not found");
@@ -100,11 +103,11 @@ export async function DELETE(
 
     // Delete associated items first
     await prisma.salesOrderItem.deleteMany({
-      where: { orderId: params.id },
+      where: { orderId: id },
     });
 
     await prisma.salesOrder.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ data: { success: true } });

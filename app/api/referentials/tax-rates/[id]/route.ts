@@ -18,13 +18,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "READ");
 
     const taxRate = await prisma.taxRate.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!taxRate) throw ErrorCodes.NOT_FOUND("Tax rate not found");
@@ -42,13 +43,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "UPDATE");
 
     const taxRate = await prisma.taxRate.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!taxRate) throw ErrorCodes.NOT_FOUND("Tax rate not found");
@@ -59,7 +61,7 @@ export async function PATCH(
     const data = updateTaxRateSchema.parse(body);
 
     const updated = await prisma.taxRate.update({
-      where: { id: params.id },
+      where: { id: id },
       data,
     });
 
@@ -74,13 +76,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "DELETE");
 
     const taxRate = await prisma.taxRate.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!taxRate) throw ErrorCodes.NOT_FOUND("Tax rate not found");
@@ -88,7 +91,7 @@ export async function DELETE(
     checkGroupAccess(session, taxRate.groupId);
 
     await prisma.taxRate.delete({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     return NextResponse.json({ message: "Tax rate deleted successfully" });
