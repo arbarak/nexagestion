@@ -106,8 +106,8 @@ export async function POST(
       where: { invoiceId: id },
     });
 
-    const totalAmount_all = allItems.reduce((sum, item) => sum + item.totalAmount, 0);
-    const totalTax_all = allItems.reduce((sum, item) => sum + item.taxAmount, 0);
+    const totalAmount_all = allItems.reduce((sum: number, item: any) => sum + item.totalAmount, 0);
+    const totalTax_all = allItems.reduce((sum: number, item: any) => sum + item.taxAmount, 0);
 
     await prisma.purchaseInvoice.update({
       where: { id },
