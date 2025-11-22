@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "IMPORT", "CREATE");
+    checkPermission(session, "EMPLOYEE", "CREATE");
 
     const body = await request.json();
     const { module, data } = importSchema.parse(body);
