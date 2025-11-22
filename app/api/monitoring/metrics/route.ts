@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate statistics
-    const values = metrics.map(m => m.value);
+    const values = metrics.map((m: any) => m.value);
     const stats = {
       count: metrics.length,
       average: values.length > 0 ? values.reduce((a: number, b: number) => a + b, 0) / values.length : 0,
