@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Metadata } from "next";
 import { motion } from "framer-motion";
 import { Shield, Lock, Eye, AlertCircle, CheckCircle, Key } from "lucide-react";

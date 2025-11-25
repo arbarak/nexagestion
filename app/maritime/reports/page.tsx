@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
@@ -16,7 +19,7 @@ interface ReportData {
 }
 
 export default function MaritimeReportsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const [data, setData] = useState<ReportData>({
     totalVessels: 0,
     activeVessels: 0,

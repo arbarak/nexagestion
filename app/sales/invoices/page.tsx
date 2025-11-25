@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { InvoiceDialog } from "@/components/sales/invoice-dialog";
@@ -21,7 +24,7 @@ interface SalesInvoice {
 }
 
 export default function SalesInvoicesPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const [invoices, setInvoices] = useState<SalesInvoice[]>([]);
   const [clients, setClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

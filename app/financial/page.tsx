@@ -1,12 +1,15 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function FinancialHub() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
 
   const modules = [
     {

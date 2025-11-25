@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { ReferentialForm } from "@/components/referential-form";
@@ -16,7 +19,7 @@ interface Vessel {
 }
 
 export default function VesselsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const [vessels, setVessels] = useState<Vessel[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

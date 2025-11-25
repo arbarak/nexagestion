@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
@@ -15,7 +18,7 @@ interface InventoryStats {
 }
 
 export default function InventoryReportsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const [stats, setStats] = useState<InventoryStats | null>(null);
   const [loading, setLoading] = useState(true);
 

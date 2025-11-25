@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { useSession } from "next-auth/react";
@@ -15,7 +18,7 @@ interface ReportData {
 }
 
 export default function HRReportsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const sessionUser = (session as any)?.user;
   const [data, setData] = useState<ReportData>({
     totalEmployees: 0,

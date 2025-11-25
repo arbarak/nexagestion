@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Metadata } from "next";
 import { motion } from "framer-motion";
 import { BarChart3, Users, Package, Zap, Lock, Globe, Smartphone, Cpu } from "lucide-react";

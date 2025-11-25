@@ -8,9 +8,6 @@ const nextConfig = {
   },
   compress: true,
   productionBrowserSourceMaps: false,
-  // Skip static page generation to avoid <Html> import errors
-  // Pages will be dynamically rendered on demand
-  staticPageGenerationTimeout: 0,
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -19,11 +16,9 @@ const nextConfig = {
       crypto: false,
     };
     // Disable webpack cache to avoid build issues
-    // Next.js 15 handles caching automatically
     config.cache = false;
     return config;
   },
 };
 
 module.exports = nextConfig;
-

@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { SupplierDialog } from "@/components/referentials/supplier-dialog";
@@ -19,7 +22,7 @@ interface Supplier {
 }
 
 export default function SuppliersPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

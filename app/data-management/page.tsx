@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
 export default function DataManagementPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const [selectedModule, setSelectedModule] = useState("sales");
   const [selectedFormat, setSelectedFormat] = useState("csv");
   const [importing, setImporting] = useState(false);

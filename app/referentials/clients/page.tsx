@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { ClientDialog } from "@/components/referentials/client-dialog";
@@ -17,7 +20,7 @@ interface Client {
 }
 
 export default function ClientsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

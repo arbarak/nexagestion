@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { ReferentialForm } from "@/components/referential-form";
@@ -13,7 +16,7 @@ interface Brand {
 }
 
 export default function BrandsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

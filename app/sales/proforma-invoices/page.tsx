@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { SaleDialog } from "@/components/sales/sale-dialog";
@@ -19,7 +22,7 @@ interface SalesOrder {
 }
 
 export default function ProformaInvoicesPage() {
-    const { data: session } = useSession();
+    const { data: session } = useSafeSession();
     const [orders, setOrders] = useState<SalesOrder[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);

@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
 export default function SettingsPage() {
-  const { data: session, update: updateSession } = useSession();
+  const { data: session, update: updateSession } = useSafeSession();
   const [formData, setFormData] = useState({
     firstName: (session as any)?.user?.firstName || "",
     lastName: (session as any)?.user?.lastName || "",

@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { ReferentialForm } from "@/components/referential-form";
@@ -17,7 +20,7 @@ interface PurchaseInvoice {
 }
 
 export default function PurchaseInvoicesPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const [invoices, setInvoices] = useState<PurchaseInvoice[]>([]);
   const [suppliers, setSuppliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

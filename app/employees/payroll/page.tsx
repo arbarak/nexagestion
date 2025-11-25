@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
 import { ReferentialForm } from "@/components/referential-form";
@@ -25,7 +28,7 @@ interface Employee {
 }
 
 export default function PayrollPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const sessionUser = (session as any)?.user;
   const [payroll, setPayroll] = useState<Payroll[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);

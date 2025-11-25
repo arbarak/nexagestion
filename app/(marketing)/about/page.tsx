@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Metadata } from "next";
 import { motion } from "framer-motion";
 import { Award, Users, Zap, Globe } from "lucide-react";

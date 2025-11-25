@@ -1,16 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git checkout:*)",
-      "Bash(gh pr create:*)",
-      "Bash(git fetch:*)",
-      "Bash(git merge -m \"$(cat <<''EOF''\nMerge frosty-lalande into main: Comprehensive bug fixes and deployment improvements\n\nThis merge brings all improvements from the frosty-lalande branch:\n\n✅ Fixed Dokploy Nixpacks build issues\n✅ Implemented settings update API\n✅ Created structured logging service\n✅ Fixed Prisma client instantiation (15 files)\n✅ Enhanced Docker configuration for production\n✅ Added health checks to Dockerfile\n\nThis resolves the \"tsconfig.tsbuildinfo not a directory\" error and ensures\nsuccessful deployments on Hostinger VPS with Dokploy.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nEOF\n)\" origin/main)",
-      "Bash(git merge origin/main -m \"$(cat <<''EOF''\nMerge main into frosty-lalande for sync before final merge back to main\n\nSyncing latest changes from main branch before merging all fixes back.\nEOF\n)\")",
-      "Bash(git config:*)",
-      "Bash(is not an absolute path!\"\n\nBuild will now succeed on Dokploy deployment.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

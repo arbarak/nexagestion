@@ -1,12 +1,15 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
+import { useSafeSession } from "@/lib/use-safe-session";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function FinancialReportsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSafeSession();
   const sessionUser = (session as any)?.user;
   const [reportType, setReportType] = useState("balance-sheet");
   const [report, setReport] = useState<any>(null);
