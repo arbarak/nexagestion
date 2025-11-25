@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
@@ -6,21 +8,18 @@ const nextConfig = {
   },
   output: "standalone",
   outputFileTracingRoot: __dirname,
-  swcMinify: true,
   compress: true,
   productionBrowserSourceMaps: false,
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
       path: false,
       crypto: false,
     };
-    // Use disk cache for webpack to speed up builds
-    config.cache = {
-      type: 'filesystem',
-      cacheDirectory: '.next/cache',
-    };
+    // Disable webpack cache to avoid build issues
+    // Next.js 15 handles caching automatically
+    config.cache = false;
     return config;
   },
 };
