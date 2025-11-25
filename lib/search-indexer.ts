@@ -54,7 +54,7 @@ export class SearchIndexer {
     const invoices = await prisma.invoice.findMany({
       where: { companyId },
       include: {
-        order: true,
+        sale: true,
       },
     });
 
@@ -63,12 +63,12 @@ export class SearchIndexer {
       data: {
         type: 'invoice',
         companyId,
-        title: `Invoice #${invoice.invoiceNumber}`,
-        description: `Invoice for order ${invoice.order?.orderNumber}`,
-        content: `Invoice ${invoice.invoiceNumber} - ${invoice.status}`,
+        title: `Invoice #${invoice.number}`,
+        description: `Invoice for sale ${invoice.sale?.number}`,
+        content: `Invoice ${invoice.number} - ${invoice.status}`,
         status: invoice.status,
-        orderId: invoice.orderId,
-        amount: invoice.amount,
+        saleId: invoice.saleId,
+        amount: invoice.totalAmount,
         createdAt: invoice.createdAt,
         tags: ['invoice', invoice.status],
       },
