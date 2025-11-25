@@ -82,8 +82,15 @@ export class SearchIndexer {
   }
 
   async indexProducts(companyId: string): Promise<number> {
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { groupId: true },
+    });
+
+    if (!company) return 0;
+
     const products = await prisma.product.findMany({
-      where: { companyId },
+      where: { groupId: company.groupId },
       include: {
         category: true,
         brand: true,
@@ -115,8 +122,15 @@ export class SearchIndexer {
   }
 
   async indexClients(companyId: string): Promise<number> {
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { groupId: true },
+    });
+
+    if (!company) return 0;
+
     const clients = await prisma.client.findMany({
-      where: { companyId },
+      where: { groupId: company.groupId },
     });
 
     const documents = clients.map((client: any) => ({

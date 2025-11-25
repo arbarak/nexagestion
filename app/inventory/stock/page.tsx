@@ -30,10 +30,10 @@ export default function StockPage() {
       setLoading(true);
       const [stockRes, productsRes] = await Promise.all([
         fetch(
-          `/api/inventory/stock?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/inventory/stock?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
         fetch(
-          `/api/referentials/products?groupId=${session?.user?.groupId}`
+          `/api/referentials/products?groupId=${(session as any)?.user?.groupId}`
         ),
       ]);
 
@@ -65,8 +65,8 @@ export default function StockPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
-          companyId: session?.user?.companyId,
+          groupId: (session as any)?.user?.groupId,
+          companyId: (session as any)?.user?.companyId,
         }),
       });
 

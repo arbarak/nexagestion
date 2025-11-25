@@ -2,18 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
-import { ReferentialForm } from "@/components/referential-form";
+import { InvoiceDialog } from "@/components/sales/invoice-dialog";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 
 interface SalesInvoice {
   id: string;
   invoiceNumber: string;
   invoiceDate: string;
-  status: string;
+  dueDate: string;
+  status: "DRAFT" | "SENT" | "PAID" | "OVERDUE" | "CANCELLED";
   totalAmount: number;
   paidAmount: number;
   client?: { name: string };
+  clientId: string;
+  items: { productId: string; quantity: number; unitPrice: number }[];
 }
 
 export default function SalesInvoicesPage() {
@@ -33,10 +37,10 @@ export default function SalesInvoicesPage() {
       setLoading(true);
       const [invoicesRes, clientsRes] = await Promise.all([
         fetch(
-          `/api/sales/invoices?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/sales/invoices?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
         fetch(
-          `/api/referentials/clients?groupId=${session?.user?.groupId}`
+          `/api/referentials/clients?groupId=${(session as any)?.user?.groupId}`
         ),
       ]);
 
@@ -68,8 +72,8 @@ export default function SalesInvoicesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
-          companyId: session?.user?.companyId,
+          groupId: (session as any)?.user?.groupId,
+          companyId: (session as any)?.user?.companyId,
         }),
       });
 
@@ -118,62 +122,39 @@ export default function SalesInvoicesPage() {
 
   return (
     <div className="space-y-6 p-8">
-      <h1 className="text-3xl font-bold">Sales Invoices</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Sales Invoices</h1>
+        <Button onClick={() => {
+          setEditingInvoice(null);
+          setShowForm(true);
+        }}>
+          New Invoice
+        </Button>
+      </div>
 
-      {showForm ? (
-        <Card className="p-6">
-          <ReferentialForm
-            title={editingInvoice ? "Edit Invoice" : "New Sales Invoice"}
-            fields={[
-              { name: "invoiceNumber", label: "Invoice #", required: true },
-              {
-                name: "clientId",
-                label: "Client",
-                type: "select",
-                required: true,
-                options: clients.map((c) => ({ value: c.id, label: c.name })),
-              },
-              { name: "invoiceDate", label: "Invoice Date", type: "text", required: true },
-              { name: "dueDate", label: "Due Date", type: "text", required: true },
-              {
-                name: "status",
-                label: "Status",
-                type: "select",
-                required: true,
-                options: [
-                  { value: "DRAFT", label: "Draft" },
-                  { value: "ISSUED", label: "Issued" },
-                  { value: "PAID", label: "Paid" },
-                  { value: "OVERDUE", label: "Overdue" },
-                  { value: "CANCELLED", label: "Cancelled" },
-                ],
-              },
-              { name: "paidAmount", label: "Paid Amount", type: "number" },
-              { name: "notes", label: "Notes" },
-            ]}
-            initialData={editingInvoice || undefined}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingInvoice(null);
-            }}
-          />
-        </Card>
-      ) : (
-        <Card className="p-6">
-          <DataTable
-            data={invoices}
-            columns={columns}
-            onEdit={(invoice) => {
-              setEditingInvoice(invoice);
-              setShowForm(true);
-            }}
-            onDelete={handleDelete}
-            onAdd={() => setShowForm(true)}
-            searchField="invoiceNumber"
-          />
-        </Card>
-      )}
+      <Card className="p-6">
+        <DataTable
+          data={invoices}
+          columns={columns}
+          onEdit={(invoice) => {
+            setEditingInvoice(invoice);
+            setShowForm(true);
+          }}
+          onDelete={handleDelete}
+          onAdd={() => {
+            setEditingInvoice(null);
+            setShowForm(true);
+          }}
+          searchField="invoiceNumber"
+        />
+      </Card>
+
+      <InvoiceDialog
+        open={showForm}
+        onOpenChange={setShowForm}
+        initialData={editingInvoice || undefined}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }

@@ -39,13 +39,13 @@ export async function GET(request: NextRequest) {
       metrics.reduce((sum: number, m: any) => sum + m.loadTime, 0) / metrics.length || 0;
     const avgFCP =
       metrics.reduce((sum: number, m: any) => sum + m.firstContentfulPaint, 0) /
-        metrics.length || 0;
+      metrics.length || 0;
     const avgLCP =
       metrics.reduce((sum: number, m: any) => sum + m.largestContentfulPaint, 0) /
-        metrics.length || 0;
+      metrics.length || 0;
     const avgCLS =
       metrics.reduce((sum: number, m: any) => sum + m.cumulativeLayoutShift, 0) /
-        metrics.length || 0;
+      metrics.length || 0;
 
     return NextResponse.json({
       data: {
@@ -68,6 +68,9 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
+    if (!session.companyId) {
+      throw ErrorCodes.VALIDATION_ERROR("companyId is required");
+    }
 
     const body = await request.json();
     const data = performanceMetricSchema.parse(body);
@@ -91,7 +94,3 @@ export async function POST(request: NextRequest) {
     return handleApiError(error);
   }
 }
-
-
-
-

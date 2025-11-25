@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
-import { ReferentialForm } from "@/components/referential-form";
+import { ProductDialog } from "@/components/referentials/product-dialog";
+import { ProductQRDialog } from "@/components/referentials/product-qr-dialog";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { QrCode } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 interface Product {
@@ -19,11 +22,12 @@ interface Product {
 export default function ProductsPage() {
   const { data: session } = useSession();
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  const [showQR, setShowQR] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -32,23 +36,11 @@ export default function ProductsPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [productsRes, categoriesRes, brandsRes] = await Promise.all([
-        fetch(`/api/referentials/products?groupId=${session?.user?.groupId}`),
-        fetch(`/api/referentials/categories?groupId=${session?.user?.groupId}`),
-        fetch(`/api/referentials/brands?groupId=${session?.user?.groupId}`),
-      ]);
+      const response = await fetch(`/api/referentials/products?groupId=${(session as any)?.user?.groupId}`);
 
-      if (productsRes.ok) {
-        const data = await productsRes.json();
+      if (response.ok) {
+        const data = await response.json();
         setProducts(data.data);
-      }
-      if (categoriesRes.ok) {
-        const data = await categoriesRes.json();
-        setCategories(data.data);
-      }
-      if (brandsRes.ok) {
-        const data = await brandsRes.json();
-        setBrands(data.data);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -70,7 +62,7 @@ export default function ProductsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: (session as any)?.user?.groupId,
         }),
       });
 
@@ -116,6 +108,23 @@ export default function ProductsPage() {
     },
     { key: "price" as const, label: "Price" },
     { key: "cost" as const, label: "Cost" },
+    {
+      key: "qr" as const,
+      label: "QR",
+      render: (product: Product) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedProduct(product);
+            setShowQR(true);
+          }}
+        >
+          <QrCode className="h-4 w-4" />
+        </Button>
+      ),
+    },
   ];
 
   if (loading) {
@@ -124,55 +133,45 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-6 p-8">
-      <h1 className="text-3xl font-bold">Products Management</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Products Management</h1>
+        <Button onClick={() => {
+          setEditingProduct(null);
+          setShowForm(true);
+        }}>
+          Add New Product
+        </Button>
+      </div>
 
-      {showForm ? (
-        <Card className="p-6">
-          <ReferentialForm
-            title={editingProduct ? "Edit Product" : "Add New Product"}
-            fields={[
-              { name: "code", label: "Code", required: true },
-              { name: "name", label: "Name", required: true },
-              { name: "description", label: "Description" },
-              {
-                name: "categoryId",
-                label: "Category",
-                type: "select",
-                options: categories.map((c) => ({ value: c.id, label: c.name })),
-              },
-              {
-                name: "brandId",
-                label: "Brand",
-                type: "select",
-                options: brands.map((b) => ({ value: b.id, label: b.name })),
-              },
-              { name: "price", label: "Price", type: "number", required: true },
-              { name: "cost", label: "Cost", type: "number", required: true },
-            ]}
-            initialData={editingProduct || undefined}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingProduct(null);
-            }}
-          />
-        </Card>
-      ) : (
-        <Card className="p-6">
-          <DataTable
-            data={products}
-            columns={columns}
-            onEdit={(product) => {
-              setEditingProduct(product);
-              setShowForm(true);
-            }}
-            onDelete={handleDelete}
-            onAdd={() => setShowForm(true)}
-            searchField="name"
-          />
-        </Card>
-      )}
+      <Card className="p-6">
+        <DataTable
+          data={products}
+          columns={columns}
+          onEdit={(product) => {
+            setEditingProduct(product);
+            setShowForm(true);
+          }}
+          onDelete={handleDelete}
+          onAdd={() => {
+            setEditingProduct(null);
+            setShowForm(true);
+          }}
+          searchField="name"
+        />
+      </Card>
+
+      <ProductDialog
+        open={showForm}
+        onOpenChange={setShowForm}
+        initialData={editingProduct || undefined}
+        onSubmit={handleSubmit}
+      />
+
+      <ProductQRDialog
+        open={showQR}
+        onOpenChange={setShowQR}
+        product={selectedProduct}
+      />
     </div>
   );
 }
-

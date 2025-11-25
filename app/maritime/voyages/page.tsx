@@ -36,8 +36,8 @@ export default function VoyagesPage() {
     try {
       setLoading(true);
       const [voyagesRes, vesselsRes] = await Promise.all([
-        fetch(`/api/maritime/voyages?groupId=${session?.user?.groupId}`),
-        fetch(`/api/maritime/vessels?groupId=${session?.user?.groupId}`),
+        fetch(`/api/maritime/voyages?groupId=${(session as any)?.user?.groupId}`),
+        fetch(`/api/maritime/vessels?groupId=${(session as any)?.user?.groupId}`),
       ]);
 
       if (voyagesRes.ok) {
@@ -69,7 +69,7 @@ export default function VoyagesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: (session as any)?.user?.groupId,
         }),
       });
 

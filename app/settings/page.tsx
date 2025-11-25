@@ -10,9 +10,9 @@ import { useState } from "react";
 export default function SettingsPage() {
   const { data: session, update: updateSession } = useSession();
   const [formData, setFormData] = useState({
-    firstName: session?.user?.firstName || "",
-    lastName: session?.user?.lastName || "",
-    email: session?.user?.email || "",
+    firstName: (session as any)?.user?.firstName || "",
+    lastName: (session as any)?.user?.lastName || "",
+    email: (session as any)?.user?.email || "",
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
@@ -171,15 +171,15 @@ export default function SettingsPage() {
         <CardContent className="space-y-2">
           <div className="flex justify-between">
             <span className="text-gray-600">Role:</span>
-            <span className="font-semibold">{session?.user?.role}</span>
+            <span className="font-semibold">{(session as any)?.user?.role}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Company:</span>
-            <span className="font-semibold">{session?.user?.companyId}</span>
+            <span className="font-semibold">{(session as any)?.user?.companyId}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Group:</span>
-            <span className="font-semibold">{session?.user?.groupId}</span>
+            <span className="font-semibold">{(session as any)?.user?.groupId}</span>
           </div>
         </CardContent>
       </Card>

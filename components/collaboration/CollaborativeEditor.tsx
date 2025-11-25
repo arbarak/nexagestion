@@ -90,7 +90,7 @@ export default function CollaborativeEditor({
     }
   };
 
-  const handleCursorMove = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+  const handleCursorMove = () => {
     if (socket && textareaRef.current) {
       const textarea = textareaRef.current;
       const position = textarea.selectionStart;
@@ -174,4 +174,3 @@ export default function CollaborativeEditor({
     </div>
   );
 }
-

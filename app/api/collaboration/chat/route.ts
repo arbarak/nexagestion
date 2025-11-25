@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
           type: 'mention',
           title: 'You were mentioned in a chat',
           message: content.substring(0, 100),
+          module: 'CHAT',
           relatedId: message.id,
         })),
       });
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest) {
     const messages = await prisma.teamChatMessage.findMany({
       where: { channelId },
       include: {
-        user: { select: { firstName: true, lastName: true, email: true, avatar: true } },
+        user: { select: { firstName: true, lastName: true, email: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: limit,

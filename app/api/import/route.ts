@@ -32,16 +32,12 @@ export async function POST(request: NextRequest) {
         try {
           await prisma.employee.create({
             data: {
-              groupId: session.userId,
               companyId: session.companyId,
               firstName: row.firstName || "",
               lastName: row.lastName || "",
               email: row.email || "",
               phone: row.phone || "",
               position: row.position || "",
-              department: row.department || "",
-              hireDate: row.hireDate ? new Date(row.hireDate) : new Date(),
-              status: "ACTIVE",
             },
           });
           importedCount++;

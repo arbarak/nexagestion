@@ -13,7 +13,7 @@ const dealSchema = z.object({
 
 const stageUpdateSchema = z.object({
   dealId: z.string(),
-  stage: z.string(),
+  stage: z.enum(['prospecting', 'qualification', 'proposal', 'negotiation', 'closed-won', 'closed-lost']),
   probability: z.number(),
 });
 

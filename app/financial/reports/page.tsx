@@ -7,15 +7,16 @@ import { Button } from "@/components/ui/button";
 
 export default function FinancialReportsPage() {
   const { data: session } = useSession();
+  const sessionUser = (session as any)?.user;
   const [reportType, setReportType] = useState("balance-sheet");
-  const [report, setReport] = useState(null);
+  const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const fetchReport = async (type: string) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `/api/reports/financial?companyId=${session?.user?.companyId}&type=${type}`
+        `/api/reports/financial?companyId=${sessionUser?.companyId ?? ""}&type=${type}`
       );
       if (response.ok) {
         const result = await response.json();
@@ -29,10 +30,10 @@ export default function FinancialReportsPage() {
   };
 
   useEffect(() => {
-    if (session?.user?.companyId) {
+    if (sessionUser?.companyId) {
       fetchReport(reportType);
     }
-  }, [reportType, session]);
+  }, [reportType, sessionUser?.companyId]);
 
   return (
     <div className="space-y-6">
@@ -183,4 +184,3 @@ export default function FinancialReportsPage() {
     </div>
   );
 }
-

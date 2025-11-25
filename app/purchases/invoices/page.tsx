@@ -33,10 +33,10 @@ export default function PurchaseInvoicesPage() {
       setLoading(true);
       const [invoicesRes, suppliersRes] = await Promise.all([
         fetch(
-          `/api/purchases/invoices?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/purchases/invoices?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
         fetch(
-          `/api/referentials/suppliers?groupId=${session?.user?.groupId}`
+          `/api/referentials/suppliers?groupId=${(session as any)?.user?.groupId}`
         ),
       ]);
 
@@ -68,8 +68,8 @@ export default function PurchaseInvoicesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
-          companyId: session?.user?.companyId,
+          groupId: (session as any)?.user?.groupId,
+          companyId: (session as any)?.user?.companyId,
         }),
       });
 

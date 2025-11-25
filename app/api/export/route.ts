@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     } else if (module === "inventory") {
       data = await prisma.stock.findMany({
         where: { companyId: session.companyId },
-        include: { product: true, warehouse: true },
+        include: { product: true },
       });
     } else if (module === "employees") {
       data = await prisma.employee.findMany({

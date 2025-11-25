@@ -6,11 +6,9 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const createStockSchema = z.object({
-  groupId: z.string(),
   companyId: z.string(),
   productId: z.string(),
   quantity: z.number().min(0),
-  warehouseLocation: z.string().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -20,18 +18,14 @@ export async function GET(request: NextRequest) {
     checkPermission(session, "STOCK", "READ");
 
     const { searchParams } = new URL(request.url);
-    const groupId = searchParams.get("groupId");
     const companyId = searchParams.get("companyId");
 
-    if (!groupId || !companyId) {
-      throw ErrorCodes.VALIDATION_ERROR("groupId and companyId are required");
+    if (!companyId) {
+      throw ErrorCodes.VALIDATION_ERROR("companyId is required");
     }
-
-    checkGroupAccess(session, groupId);
 
     const stock = await prisma.stock.findMany({
       where: {
-        groupId,
         companyId,
       },
       include: {
@@ -55,7 +49,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = createStockSchema.parse(body);
 
-    checkGroupAccess(session, data.groupId);
 
     // Check if product exists
     const product = await prisma.product.findUnique({
@@ -69,7 +62,6 @@ export async function POST(request: NextRequest) {
     // Check if stock already exists for this product
     const existingStock = await prisma.stock.findFirst({
       where: {
-        groupId: data.groupId,
         companyId: data.companyId,
         productId: data.productId,
       },
@@ -81,7 +73,6 @@ export async function POST(request: NextRequest) {
         where: { id: existingStock.id },
         data: {
           quantity: data.quantity,
-          warehouseLocation: data.warehouseLocation,
         },
         include: {
           product: true,
@@ -92,11 +83,9 @@ export async function POST(request: NextRequest) {
 
     const stock = await prisma.stock.create({
       data: {
-        groupId: data.groupId,
         companyId: data.companyId,
         productId: data.productId,
         quantity: data.quantity,
-        warehouseLocation: data.warehouseLocation,
       },
       include: {
         product: true,

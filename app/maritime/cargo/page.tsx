@@ -36,8 +36,8 @@ export default function CargoPage() {
     try {
       setLoading(true);
       const [cargoRes, voyagesRes] = await Promise.all([
-        fetch(`/api/maritime/cargo?groupId=${session?.user?.groupId}`),
-        fetch(`/api/maritime/voyages?groupId=${session?.user?.groupId}`),
+        fetch(`/api/maritime/cargo?groupId=${(session as any)?.user?.groupId}`),
+        fetch(`/api/maritime/voyages?groupId=${(session as any)?.user?.groupId}`),
       ]);
 
       if (cargoRes.ok) {
@@ -69,7 +69,7 @@ export default function CargoPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: (session as any)?.user?.groupId,
         }),
       });
 

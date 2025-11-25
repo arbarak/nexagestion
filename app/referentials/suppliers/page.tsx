@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
-import { ReferentialForm } from "@/components/referential-form";
+import { SupplierDialog } from "@/components/referentials/supplier-dialog";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 
 interface Supplier {
@@ -13,6 +14,8 @@ interface Supplier {
   email?: string;
   phone?: string;
   city?: string;
+  isForeign: boolean;
+  defaultCurrency: "MAD" | "EUR";
 }
 
 export default function SuppliersPage() {
@@ -30,7 +33,7 @@ export default function SuppliersPage() {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/referentials/suppliers?groupId=${session?.user?.groupId}`
+        `/api/referentials/suppliers?groupId=${(session as any)?.user?.groupId}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -56,7 +59,7 @@ export default function SuppliersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: (session as any)?.user?.groupId,
         }),
       });
 
@@ -101,46 +104,39 @@ export default function SuppliersPage() {
 
   return (
     <div className="space-y-6 p-8">
-      <h1 className="text-3xl font-bold">Suppliers Management</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Suppliers Management</h1>
+        <Button onClick={() => {
+          setEditingSupplier(null);
+          setShowForm(true);
+        }}>
+          Add Supplier
+        </Button>
+      </div>
 
-      {showForm ? (
-        <Card className="p-6">
-          <ReferentialForm
-            title={editingSupplier ? "Edit Supplier" : "Add New Supplier"}
-            fields={[
-              { name: "code", label: "Code", required: true },
-              { name: "name", label: "Name", required: true },
-              { name: "email", label: "Email", type: "email" },
-              { name: "phone", label: "Phone" },
-              { name: "address", label: "Address" },
-              { name: "city", label: "City" },
-              { name: "country", label: "Country" },
-              { name: "ice", label: "ICE" },
-              { name: "if", label: "IF" },
-            ]}
-            initialData={editingSupplier || undefined}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingSupplier(null);
-            }}
-          />
-        </Card>
-      ) : (
-        <Card className="p-6">
-          <DataTable
-            data={suppliers}
-            columns={columns}
-            onEdit={(supplier) => {
-              setEditingSupplier(supplier);
-              setShowForm(true);
-            }}
-            onDelete={handleDelete}
-            onAdd={() => setShowForm(true)}
-            searchField="name"
-          />
-        </Card>
-      )}
+      <Card className="p-6">
+        <DataTable
+          data={suppliers}
+          columns={columns}
+          onEdit={(supplier) => {
+            setEditingSupplier(supplier);
+            setShowForm(true);
+          }}
+          onDelete={handleDelete}
+          onAdd={() => {
+            setEditingSupplier(null);
+            setShowForm(true);
+          }}
+          searchField="name"
+        />
+      </Card>
+
+      <SupplierDialog
+        open={showForm}
+        onOpenChange={setShowForm}
+        initialData={editingSupplier || undefined}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }

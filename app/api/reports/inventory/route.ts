@@ -35,7 +35,11 @@ export async function GET(request: NextRequest) {
 
     // Stock movements summary
     const movements = await prisma.stockMovement.findMany({
-      where: { companyId },
+      where: {
+        stock: {
+          companyId,
+        },
+      },
       orderBy: { createdAt: "desc" },
       take: 100,
     });

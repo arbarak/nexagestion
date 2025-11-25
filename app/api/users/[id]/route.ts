@@ -16,26 +16,29 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "USERS", "READ");
 
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         firstName: true,
         lastName: true,
         email: true,
         role: true,
-        groupId: true,
+        companyId: true,
         createdAt: true,
       },
     });
 
     if (!user) throw ErrorCodes.NOT_FOUND("User not found");
 
-    checkGroupAccess(session, user.groupId);
+    if (user.companyId) {
+      checkGroupAccess(session, user.companyId);
+    }
 
     return NextResponse.json({ data: user });
   } catch (error) {
@@ -48,23 +51,26 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "USERS", "UPDATE");
 
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!user) throw ErrorCodes.NOT_FOUND("User not found");
 
-    checkGroupAccess(session, user.groupId);
+    if (user.companyId) {
+      checkGroupAccess(session, user.companyId);
+    }
 
     const body = await request.json();
     const data = updateUserSchema.parse(body);
 
     const updated = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data,
       select: {
         id: true,
@@ -87,22 +93,24 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "USER", "DELETE");
 
-    const { id } = await params;
     const user = await prisma.user.findUnique({
       where: { id },
     });
 
     if (!user) throw ErrorCodes.NOT_FOUND("User not found");
 
-    checkGroupAccess(session, user.groupId);
+    if (user.companyId) {
+      checkGroupAccess(session, user.companyId);
+    }
 
     // Prevent deleting the last admin
     const adminCount = await prisma.user.count({
-      where: { groupId: user.groupId, role: "ADMIN" },
+      where: { companyId: user.companyId, role: "ADMIN" },
     });
 
     if (user.role === "ADMIN" && adminCount === 1) {
@@ -111,11 +119,10 @@ export async function DELETE(
       );
     }
 
-    await prisma.user.delete({ where: { id: params.id } });
+    await prisma.user.delete({ where: { id } });
 
     return NextResponse.json({ data: { success: true } });
   } catch (error) {
     return handleApiError(error);
   }
 }
-

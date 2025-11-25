@@ -15,8 +15,8 @@ export default function ReportsPage() {
   const fetchReports = async () => {
     try {
       const [salesRes, inventoryRes] = await Promise.all([
-        fetch(`/api/reports/sales?companyId=${session?.user?.companyId}`),
-        fetch(`/api/reports/inventory?companyId=${session?.user?.companyId}`),
+        fetch(`/api/reports/sales?companyId=${(session as any)?.user?.companyId}`),
+        fetch(`/api/reports/inventory?companyId=${(session as any)?.user?.companyId}`),
       ]);
 
       if (salesRes.ok) {
@@ -36,7 +36,7 @@ export default function ReportsPage() {
   };
 
   useEffect(() => {
-    if (session?.user?.companyId) {
+    if ((session as any)?.user?.companyId) {
       fetchReports();
     }
   }, [session]);

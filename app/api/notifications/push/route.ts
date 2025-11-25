@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       });
     } else if (targetRole) {
       users = await prisma.user.findMany({
-        where: { role: targetRole, companyId: session.companyId },
+        where: { role: targetRole as any, companyId: session.companyId },
       });
     } else {
       users = await prisma.user.findMany({
@@ -43,16 +43,16 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create notifications for each user
     const notifications = await Promise.all(
       users.map((user: any) =>
         prisma.notification.create({
           data: {
             userId: user.id,
+            module: 'PUSH',
+            type: 'INFO',
             title,
-            body: messageBody,
-            data: data || {},
-            type: 'push',
+            message: messageBody,
+            relatedId: null,
             read: false,
           },
         })

@@ -71,7 +71,10 @@ export async function GET(request: NextRequest) {
       total: backups.length,
       successful: backups.filter((b: any) => b.status === 'success').length,
       failed: backups.filter((b: any) => b.status === 'failed').length,
-      totalSize: backups.reduce((sum: number, b: any) => sum + b.size, 0n),
+      totalSize: backups.reduce(
+        (sum: number, b: any) => sum + Number(b.size || 0n),
+        0
+      ),
     };
 
     return NextResponse.json({
@@ -83,7 +86,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch backups' }, { status: 500 });
   }
 }
-
 
 
 

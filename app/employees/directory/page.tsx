@@ -18,20 +18,26 @@ interface Employee {
 
 export default function EmployeeDirectoryPage() {
   const { data: session } = useSession();
+  const sessionUser = (session as any)?.user;
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
   useEffect(() => {
+    if (!session) return;
     fetchData();
-  }, []);
+  }, [session]);
 
   const fetchData = async () => {
     try {
+      if (!sessionUser) {
+        return;
+      }
+
       setLoading(true);
       const response = await fetch(
-        `/api/employees?companyId=${session?.user?.companyId}`
+        `/api/employees?companyId=${sessionUser.companyId || ""}`
       );
 
       if (response.ok) {
@@ -58,8 +64,8 @@ export default function EmployeeDirectoryPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
-          companyId: session?.user?.companyId,
+          groupId: sessionUser?.groupId,
+          companyId: sessionUser?.companyId,
         }),
       });
 
@@ -170,4 +176,3 @@ export default function EmployeeDirectoryPage() {
     </div>
   );
 }
-

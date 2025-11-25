@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       throw ErrorCodes.VALIDATION_ERROR("companyId is required");
     }
 
-    checkGroupAccess(session, session.user.groupId);
+    checkGroupAccess(session, companyId);
 
     const webhooks = await prisma.webhook.findMany({
       where: { companyId },
@@ -68,4 +68,3 @@ export async function POST(request: NextRequest) {
     return handleApiError(error);
   }
 }
-

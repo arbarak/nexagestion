@@ -9,10 +9,7 @@ const updateEmployeeSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   phone: z.string().optional(),
-  department: z.string().optional(),
   position: z.string().optional(),
-  salary: z.number().positive().optional(),
-  status: z.enum(["ACTIVE", "INACTIVE", "ON_LEAVE", "TERMINATED"]).optional(),
 });
 
 export async function GET(
@@ -28,15 +25,16 @@ export async function GET(
     const employee = await prisma.employee.findUnique({
       where: { id },
       include: {
-        attendance: {
-          orderBy: { date: "desc" },
+        sessions: {
+          orderBy: { checkIn: "desc" },
           take: 30,
         },
+        company: true,
       },
     });
 
     if (!employee) throw ErrorCodes.NOT_FOUND("Employee not found");
-    checkGroupAccess(session, employee.groupId);
+    checkGroupAccess(session, employee.company.groupId);
 
     return NextResponse.json({ data: employee });
   } catch (error) {
@@ -56,10 +54,11 @@ export async function PATCH(
     const { id } = await params;
     const employee = await prisma.employee.findUnique({
       where: { id },
+      include: { company: true },
     });
 
     if (!employee) throw ErrorCodes.NOT_FOUND("Employee not found");
-    checkGroupAccess(session, employee.groupId);
+    checkGroupAccess(session, employee.company.groupId);
 
     const body = await request.json();
     const data = updateEmployeeSchema.parse(body);
@@ -70,10 +69,7 @@ export async function PATCH(
         firstName: data.firstName,
         lastName: data.lastName,
         phone: data.phone,
-        department: data.department,
         position: data.position,
-        salary: data.salary,
-        status: data.status,
       },
     });
 
@@ -95,15 +91,13 @@ export async function DELETE(
     const { id } = await params;
     const employee = await prisma.employee.findUnique({
       where: { id },
+      include: { company: true },
     });
 
     if (!employee) throw ErrorCodes.NOT_FOUND("Employee not found");
-    checkGroupAccess(session, employee.groupId);
+    checkGroupAccess(session, employee.company.groupId);
 
-    // Delete associated attendance records
-    await prisma.attendance.deleteMany({
-      where: { employeeId: id },
-    });
+
 
     await prisma.employee.delete({
       where: { id },

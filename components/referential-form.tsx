@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-interface FormField {
+export interface FormField {
   name: string;
   label: string;
-  type?: "text" | "email" | "number" | "select";
+  type?: "text" | "email" | "number" | "select" | "time" | "datetime-local" | "month";
   required?: boolean;
   options?: { value: string; label: string }[];
 }
@@ -139,4 +139,3 @@ export function ReferentialForm({
     </form>
   );
 }
-

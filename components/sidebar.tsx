@@ -2,22 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const menuItems = [
-  { href: "/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/referentials", label: "Referentials", icon: "📋" },
+const defaultMenuItems = [
+  { href: "/dashboard", label: "Dashboard", icon: "🏠" },
+  { href: "/referentials", label: "Referentials", icon: "📚" },
   { href: "/sales", label: "Sales", icon: "💰" },
-  { href: "/purchases", label: "Purchases", icon: "📦" },
+  { href: "/purchases", label: "Purchases", icon: "🛒" },
   { href: "/inventory", label: "Inventory", icon: "📦" },
-  { href: "/maritime", label: "Maritime", icon: "⛵" },
+  { href: "/maritime", label: "Maritime", icon: "🚢" },
   { href: "/employees", label: "Employees", icon: "👥" },
-  { href: "/reports", label: "Reports", icon: "📈" },
+  { href: "/reports", label: "Reports", icon: "📊" },
   { href: "/settings", label: "Settings", icon: "⚙️" },
 ];
 
-export function Sidebar() {
+type SidebarItem = {
+  href: string;
+  label: string;
+  icon?: string;
+};
+
+export function Sidebar({ items = defaultMenuItems }: { items?: SidebarItem[] }) {
   const pathname = usePathname();
 
   return (
@@ -26,13 +31,13 @@ export function Sidebar() {
         <h1 className="text-2xl font-bold">NexaGestion</h1>
       </div>
       <nav className="space-y-2 px-4">
-        {menuItems.map((item) => (
+        {items.map((item) => (
           <Link key={item.href} href={item.href}>
             <Button
               variant={pathname.startsWith(item.href) ? "default" : "ghost"}
               className="w-full justify-start"
             >
-              <span className="mr-2">{item.icon}</span>
+              {item.icon ? <span className="mr-2">{item.icon}</span> : null}
               {item.label}
             </Button>
           </Link>
@@ -41,4 +46,3 @@ export function Sidebar() {
     </aside>
   );
 }
-

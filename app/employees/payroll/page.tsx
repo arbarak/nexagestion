@@ -26,21 +26,27 @@ interface Employee {
 
 export default function PayrollPage() {
   const { data: session } = useSession();
+  const sessionUser = (session as any)?.user;
   const [payroll, setPayroll] = useState<Payroll[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
+    if (!session) return;
     fetchData();
-  }, []);
+  }, [session]);
 
   const fetchData = async () => {
     try {
+      if (!sessionUser) {
+        return;
+      }
+
       setLoading(true);
       const [payrollRes, employeesRes] = await Promise.all([
-        fetch(`/api/employees/payroll?groupId=${session?.user?.groupId}`),
-        fetch(`/api/employees?companyId=${session?.user?.companyId}`),
+        fetch(`/api/employees/payroll?groupId=${sessionUser.groupId || ""}`),
+        fetch(`/api/employees?companyId=${sessionUser.companyId || ""}`),
       ]);
 
       if (payrollRes.ok) {
@@ -66,7 +72,7 @@ export default function PayrollPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: sessionUser?.groupId,
         }),
       });
 
@@ -155,4 +161,3 @@ export default function PayrollPage() {
     </div>
   );
 }
-

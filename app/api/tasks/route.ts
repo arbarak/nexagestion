@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         priority,
         dueDate: dueDate ? new Date(dueDate) : null,
         status,
-        relatedEntity: relatedEntity || null,
+        ...(relatedEntity && { relatedEntity }),
         companyId: session.companyId,
         createdBy: session.userId,
       },

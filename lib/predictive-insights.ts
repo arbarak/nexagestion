@@ -61,8 +61,24 @@ export class PredictiveInsights {
   }
 
   async predictCustomerChurn(companyId: string): Promise<Prediction> {
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { groupId: true },
+    });
+
+    if (!company) {
+      return {
+        metric: 'Customer Churn',
+        currentValue: 0,
+        predictedValue: 0,
+        confidence: 0,
+        trend: 'stable',
+        recommendation: 'Unable to fetch company data',
+      };
+    }
+
     const clients = await prisma.client.findMany({
-      where: { companyId },
+      where: { groupId: company.groupId },
     });
 
     const activeClients = clients.length;
@@ -141,17 +157,24 @@ export class PredictiveInsights {
   async getRecommendations(companyId: string): Promise<string[]> {
     const recommendations: string[] = [];
 
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { groupId: true },
+    });
+
+    if (!company) return recommendations;
+
     const orders = await prisma.order.count({ where: { companyId } });
     if (orders < 10) {
       recommendations.push('Increase marketing efforts to boost sales');
     }
 
-    const clients = await prisma.client.count({ where: { companyId } });
+    const clients = await prisma.client.count({ where: { groupId: company.groupId } });
     if (clients < 5) {
       recommendations.push('Focus on customer acquisition');
     }
 
-    const products = await prisma.product.count({ where: { companyId } });
+    const products = await prisma.product.count({ where: { groupId: company.groupId } });
     if (products < 20) {
       recommendations.push('Expand product catalog');
     }

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 interface Column<T> {
-  key: keyof T;
+  key: string | keyof T;
   label: string;
   render?: (value: any, item: T) => React.ReactNode;
 }
@@ -33,10 +33,10 @@ export function DataTable<T extends { id: string }>({
 
   const filteredData = searchable && searchField
     ? data.filter((item) =>
-        String(item[searchField])
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      )
+      String(item[searchField])
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    )
     : data;
 
   return (
@@ -95,8 +95,8 @@ export function DataTable<T extends { id: string }>({
                       className="px-4 py-2 text-sm"
                     >
                       {col.render
-                        ? col.render(item[col.key], item)
-                        : String(item[col.key])}
+                        ? col.render(item[col.key as keyof T], item)
+                        : String(item[col.key as keyof T])}
                     </td>
                   ))}
                   {(onEdit || onDelete) && (

@@ -16,6 +16,7 @@ interface ReportData {
 
 export default function HRReportsPage() {
   const { data: session } = useSession();
+  const sessionUser = (session as any)?.user;
   const [data, setData] = useState<ReportData>({
     totalEmployees: 0,
     activeEmployees: 0,
@@ -28,16 +29,21 @@ export default function HRReportsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!session) return;
     fetchData();
-  }, []);
+  }, [session]);
 
   const fetchData = async () => {
     try {
+      if (!sessionUser) {
+        return;
+      }
+
       setLoading(true);
       const [employeesRes, attendanceRes, payrollRes] = await Promise.all([
-        fetch(`/api/employees?companyId=${session?.user?.companyId}`),
-        fetch(`/api/employees/attendance?groupId=${session?.user?.groupId}`),
-        fetch(`/api/employees/payroll?groupId=${session?.user?.groupId}`),
+        fetch(`/api/employees?companyId=${sessionUser.companyId || ""}`),
+        fetch(`/api/employees/attendance?groupId=${sessionUser.groupId || ""}`),
+        fetch(`/api/employees/payroll?groupId=${sessionUser.groupId || ""}`),
       ]);
 
       let employees = [];
@@ -132,4 +138,3 @@ export default function HRReportsPage() {
     </div>
   );
 }
-

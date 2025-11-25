@@ -6,12 +6,9 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const createMovementSchema = z.object({
-  groupId: z.string(),
-  companyId: z.string(),
   stockId: z.string(),
   type: z.enum(["IN", "OUT", "ADJUSTMENT"]),
   quantity: z.number().positive(),
-  reason: z.string(),
   reference: z.string().optional(),
 });
 
@@ -22,19 +19,17 @@ export async function GET(request: NextRequest) {
     checkPermission(session, "STOCK", "READ");
 
     const { searchParams } = new URL(request.url);
-    const groupId = searchParams.get("groupId");
     const companyId = searchParams.get("companyId");
 
-    if (!groupId || !companyId) {
-      throw ErrorCodes.VALIDATION_ERROR("groupId and companyId are required");
+    if (!companyId) {
+      throw ErrorCodes.VALIDATION_ERROR("companyId is required");
     }
-
-    checkGroupAccess(session, groupId);
 
     const movements = await prisma.stockMovement.findMany({
       where: {
-        groupId,
-        companyId,
+        stock: {
+          companyId,
+        },
       },
       include: {
         stock: {
@@ -61,9 +56,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = createMovementSchema.parse(body);
 
-    checkGroupAccess(session, data.groupId);
 
-    // Check if stock exists
     const stock = await prisma.stock.findUnique({
       where: { id: data.stockId },
     });
@@ -75,12 +68,9 @@ export async function POST(request: NextRequest) {
     // Create movement
     const movement = await prisma.stockMovement.create({
       data: {
-        groupId: data.groupId,
-        companyId: data.companyId,
         stockId: data.stockId,
         type: data.type,
         quantity: data.quantity,
-        reason: data.reason,
         reference: data.reference,
       },
       include: {
@@ -93,7 +83,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Update stock quantity
-    let newQuantity = stock.quantity;
+    let newQuantity = Number(stock.quantity);
     if (data.type === "IN") {
       newQuantity += data.quantity;
     } else if (data.type === "OUT") {

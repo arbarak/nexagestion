@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     // Get top products
     const productSales: Record<string, number> = {};
-    sales.forEach((sale) => {
+    sales.forEach((sale: any) => {
       sale.items.forEach((item: any) => {
         productSales[item.productId] =
           (productSales[item.productId] || 0) + item.quantity;
@@ -65,7 +65,6 @@ export async function GET(request: NextRequest) {
     return handleApiError(error);
   }
 }
-
 
 
 

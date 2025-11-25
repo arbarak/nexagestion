@@ -37,9 +37,9 @@ export default function MaritimeReportsPage() {
     try {
       setLoading(true);
       const [vesselsRes, voyagesRes, cargoRes] = await Promise.all([
-        fetch(`/api/maritime/vessels?groupId=${session?.user?.groupId}`),
-        fetch(`/api/maritime/voyages?groupId=${session?.user?.groupId}`),
-        fetch(`/api/maritime/cargo?groupId=${session?.user?.groupId}`),
+        fetch(`/api/maritime/vessels?groupId=${(session as any)?.user?.groupId}`),
+        fetch(`/api/maritime/voyages?groupId=${(session as any)?.user?.groupId}`),
+        fetch(`/api/maritime/cargo?groupId=${(session as any)?.user?.groupId}`),
       ]);
 
       let vessels = [];
