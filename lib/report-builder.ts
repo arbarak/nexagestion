@@ -60,7 +60,7 @@ export class ReportBuilder {
   async buildInventoryReport(companyId: string, config: ReportConfig): Promise<ReportData> {
     const stocks = await prisma.stock.findMany({
       where: { companyId },
-      include: { product: true, category: true },
+      include: { product: { include: { category: true } } },
     });
 
     interface InventoryRow {
@@ -74,7 +74,7 @@ export class ReportBuilder {
 
     const rows: InventoryRow[] = stocks.map((stock: any) => ({
       productName: stock.product?.name,
-      category: stock.category?.name,
+      category: stock.product?.category?.name,
       quantity: stock.quantity,
       minimumLevel: stock.minimumLevel,
       value: stock.quantity * (stock.product?.price || 0),
