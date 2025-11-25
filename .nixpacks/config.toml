@@ -1,0 +1,7 @@
+[build]
+# Don't use incremental TypeScript builds - causes cache mount issues
+# See: https://github.com/railwayapp/nixpacks/issues/xxx
+
+[variables]
+NODE_ENV = "production"
+NEXT_TELEMETRY_DISABLED = "1"
