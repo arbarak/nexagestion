@@ -138,7 +138,7 @@ export class AnalyticsService {
 
     // Get stock by category
     const stockByCategory = await prisma.stock.groupBy({
-      by: ['product'],
+      by: ['productId'],
       where: { companyId },
       _sum: { quantity: true },
     });
