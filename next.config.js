@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 
+// Force cache invalidation to ensure clean builds in Docker
+const buildId = new Date().getTime();
+
 const nextConfig = {
+  generateBuildId: async () => {
+    return `build-${buildId}`;
+  },
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: ["@radix-ui/react-icons"],
