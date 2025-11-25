@@ -18,7 +18,7 @@ export interface Insight {
 
 export class PredictiveInsights {
   async predictSalesRevenue(companyId: string, days: number = 30): Promise<Prediction> {
-    const orders = await prisma.order.findMany({
+    const sales = await prisma.sale.findMany({
       where: {
         companyId,
         createdAt: {
@@ -27,7 +27,7 @@ export class PredictiveInsights {
       },
     });
 
-    const currentRevenue = orders.reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0);
+    const currentRevenue = sales.reduce((sum: number, s: any) => sum + (s.totalAmount || 0), 0);
     const avgDaily = currentRevenue / days;
     const predictedRevenue = avgDaily * days * 1.15; // 15% growth prediction
 
@@ -119,7 +119,7 @@ export class PredictiveInsights {
     const overdueInvoices = await prisma.invoice.findMany({
       where: {
         companyId,
-        status: 'overdue',
+        status: 'OVERDUE',
       },
       take: 5,
     });
@@ -133,11 +133,11 @@ export class PredictiveInsights {
       });
     }
 
-    // Check for pending orders
-    const pendingOrders = await prisma.order.findMany({
+    // Check for pending orders (using DRAFT or QUOTE status from Sales)
+    const pendingOrders = await prisma.sale.findMany({
       where: {
         companyId,
-        status: 'pending',
+        status: 'DRAFT',
       },
       take: 5,
     });
@@ -164,8 +164,8 @@ export class PredictiveInsights {
 
     if (!company) return recommendations;
 
-    const orders = await prisma.order.count({ where: { companyId } });
-    if (orders < 10) {
+    const sales = await prisma.sale.count({ where: { companyId } });
+    if (sales < 10) {
       recommendations.push('Increase marketing efforts to boost sales');
     }
 
