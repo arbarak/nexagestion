@@ -4,7 +4,10 @@
       "Bash(npm run build:*)",
       "Bash(npm install:*)",
       "Bash(find:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(timeout 180 npm run build:*)",
+      "Bash(timeout 200 npm run build:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

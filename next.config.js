@@ -7,7 +7,7 @@ const nextConfig = {
   },
   compress: true,
   productionBrowserSourceMaps: false,
-  // Use standalone output to avoid prerendering issues with error pages
+  // Use standalone output for containerized deployment
   output: 'standalone',
   webpack: (config) => {
     config.resolve.fallback = {
