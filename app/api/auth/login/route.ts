@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { verifyPassword, createToken, setSessionCookie } from "@/lib/auth";
 import { generateOTP } from "@/lib/encryption";
 import { rateLimiter, RATE_LIMITS } from "@/lib/rate-limiter";
 import { logSecurityEvent, addRateLimitHeaders } from "@/lib/auth-middleware";
 import { z } from "zod";
-
-const prisma = new PrismaClient();
 
 const loginSchema = z.object({
   email: z.string().email(),

@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { ErrorCodes, handleApiError } from "@/lib/api-error";
 import { z } from "zod";
-
-const prisma = new PrismaClient();
 
 const createCompanySchema = z.object({
   groupId: z.string(),

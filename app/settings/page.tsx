@@ -8,12 +8,17 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const [formData, setFormData] = useState({
     firstName: session?.user?.firstName || "",
     lastName: session?.user?.lastName || "",
     email: session?.user?.email || "",
   });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -21,8 +26,40 @@ export default function SettingsPage() {
   };
 
   const handleSave = async () => {
-    console.log("Saving settings:", formData);
-    // TODO: Implement settings update API
+    if (!session?.user?.id) return;
+
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch(`/api/users/${session.user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update settings");
+      }
+
+      await updateSession();
+      setMessage({
+        type: "success",
+        text: "Settings updated successfully",
+      });
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text:
+          error instanceof Error ? error.message : "An error occurred",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,6 +75,17 @@ export default function SettingsPage() {
           <CardTitle>Profile Settings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {message && (
+            <div
+              className={`p-4 rounded-md ${
+                message.type === "success"
+                  ? "bg-green-50 text-green-800"
+                  : "bg-red-50 text-red-800"
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="firstName">First Name</Label>
@@ -72,7 +120,9 @@ export default function SettingsPage() {
               disabled
             />
           </div>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave} disabled={loading}>
+            {loading ? "Saving..." : "Save Changes"}
+          </Button>
         </CardContent>
       </Card>
 

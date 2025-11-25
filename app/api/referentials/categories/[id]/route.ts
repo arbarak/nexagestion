@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { checkPermission, checkGroupAccess } from "@/lib/permissions";
 import { ErrorCodes, handleApiError } from "@/lib/api-error";
 import { z } from "zod";
-
-const prisma = new PrismaClient();
 
 const updateCategorySchema = z.object({
   name: z.string().min(1).optional(),

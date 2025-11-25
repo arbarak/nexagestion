@@ -1,10 +1,8 @@
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
 import { getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 export default async function DashboardLayout({
   children,

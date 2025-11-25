@@ -39,8 +39,7 @@ export class ApiKeyService {
       expiresAt,
     };
 
-    // Store in database
-    console.log(`Generated API key: ${key}`);
+    // TODO: Store in database
     return apiKey;
   }
 
@@ -67,27 +66,22 @@ export class ApiKeyService {
   }
 
   async revokeApiKey(companyId: string, keyId: string): Promise<void> {
-    // Disable API key in database
-    console.log(`Revoked API key: ${keyId}`);
+    // TODO: Disable API key in database
   }
 
   async rotateApiKey(companyId: string, keyId: string): Promise<ApiKey> {
-    // Generate new key and secret
+    // Get current API key
+    const apiKey = await this.getApiKey(keyId);
+    if (!apiKey) throw new Error(`API key not found: ${keyId}`);
+
     const newKey = `nxg_${crypto.randomBytes(16).toString('hex')}`;
     const newSecret = crypto.randomBytes(32).toString('hex');
 
-    console.log(`Rotated API key: ${keyId}`);
-
+    // TODO: Update API key in database
     return {
-      id: keyId,
-      companyId,
-      name: 'Rotated Key',
+      ...apiKey,
       key: newKey,
       secret: newSecret,
-      permissions: [],
-      rateLimit: 1000,
-      enabled: true,
-      createdAt: new Date(),
     };
   }
 
@@ -97,18 +91,13 @@ export class ApiKeyService {
     permissions: string[]
   ): Promise<ApiKey> {
     // Update permissions in database
-    console.log(`Updated permissions for API key: ${keyId}`);
+    const apiKey = await this.getApiKey(keyId);
+    if (!apiKey) throw new Error(`API key not found: ${keyId}`);
 
+    // TODO: Implement database update for permissions
     return {
-      id: keyId,
-      companyId,
-      name: 'Updated Key',
-      key: 'nxg_xxx',
-      secret: 'xxx',
+      ...apiKey,
       permissions,
-      rateLimit: 1000,
-      enabled: true,
-      createdAt: new Date(),
     };
   }
 
@@ -118,24 +107,18 @@ export class ApiKeyService {
     rateLimit: number
   ): Promise<ApiKey> {
     // Update rate limit in database
-    console.log(`Updated rate limit for API key: ${keyId} to ${rateLimit}`);
+    const apiKey = await this.getApiKey(keyId);
+    if (!apiKey) throw new Error(`API key not found: ${keyId}`);
 
+    // TODO: Implement database update for rate limit
     return {
-      id: keyId,
-      companyId,
-      name: 'Updated Key',
-      key: 'nxg_xxx',
-      secret: 'xxx',
-      permissions: [],
+      ...apiKey,
       rateLimit,
-      enabled: true,
-      createdAt: new Date(),
     };
   }
 
   async trackApiKeyUsage(key: string): Promise<void> {
-    // Update lastUsed timestamp
-    console.log(`Tracked usage for API key: ${key}`);
+    // TODO: Update lastUsed timestamp in database
   }
 
   async getApiKeyUsageStats(companyId: string): Promise<Record<string, any>> {
