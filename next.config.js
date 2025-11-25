@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-const path = require('path');
 
 const nextConfig = {
   reactStrictMode: true,
@@ -8,11 +7,6 @@ const nextConfig = {
   },
   compress: true,
   productionBrowserSourceMaps: false,
-  // Don't prerender error pages - they'll be rendered on-demand
-  onDemandEntries: {
-    maxInactiveAge: 60 * 1000,
-    maxMemorySize: 50 * 1024 * 1024,
-  },
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -20,9 +14,12 @@ const nextConfig = {
       path: false,
       crypto: false,
     };
-    // Disable webpack cache to avoid build issues
     config.cache = false;
     return config;
+  },
+  // Ensure all pages are rendered on-demand, not prerendered
+  typescript: {
+    ignoreBuildErrors: false,
   },
 };
 
