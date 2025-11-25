@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 
 export default function DataManagementPage() {
   const { data: session } = useSession();
@@ -122,9 +121,9 @@ export default function DataManagementPage() {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="export-module">Module</Label>
-              <Select
+              <select
                 id="export-module"
-                className="mt-2"
+                className="mt-2 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={selectedModule}
                 onChange={(event) => setSelectedModule(event.target.value)}
               >
@@ -133,13 +132,13 @@ export default function DataManagementPage() {
                     {mod.label}
                   </option>
                 ))}
-              </Select>
+              </select>
             </div>
             <div>
               <Label htmlFor="export-format">Format</Label>
-              <Select
+              <select
                 id="export-format"
-                className="mt-2"
+                className="mt-2 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={selectedFormat}
                 onChange={(event) => setSelectedFormat(event.target.value)}
               >
@@ -148,7 +147,7 @@ export default function DataManagementPage() {
                     {fmt.label}
                   </option>
                 ))}
-              </Select>
+              </select>
             </div>
             <Button onClick={handleExport} className="w-full">
               📥 Export Data
@@ -164,9 +163,9 @@ export default function DataManagementPage() {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="import-module">Module</Label>
-              <Select
+              <select
                 id="import-module"
-                className="mt-2"
+                className="mt-2 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={selectedModule}
                 onChange={(event) => setSelectedModule(event.target.value)}
               >
@@ -175,7 +174,7 @@ export default function DataManagementPage() {
                     {mod.label}
                   </option>
                 ))}
-              </Select>
+              </select>
             </div>
             <div>
               <Label htmlFor="import-file">Select File</Label>
