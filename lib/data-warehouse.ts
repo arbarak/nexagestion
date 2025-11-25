@@ -76,8 +76,12 @@ export class DataWarehouse {
   async getDimensionTables(companyId: string): Promise<DimensionTable[]> {
     const tables: DimensionTable[] = [];
 
-    // Clients dimension
-    const clientCount = await prisma.client.count({ where: { companyId } });
+    // Get the company to access its groupId
+    const company = await prisma.company.findUnique({ where: { id: companyId } });
+    if (!company) return tables;
+
+    // Clients dimension (uses groupId, not companyId)
+    const clientCount = await prisma.client.count({ where: { groupId: company.groupId } });
     tables.push({
       id: 'dim_clients',
       name: 'Clients',
