@@ -8,6 +8,9 @@ const nextConfig = {
   },
   compress: true,
   productionBrowserSourceMaps: false,
+  // Skip static page generation to avoid <Html> import errors
+  // Pages will be dynamically rendered on demand
+  staticPageGenerationTimeout: 0,
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
