@@ -26,13 +26,14 @@ export default function SettingsPage() {
   };
 
   const handleSave = async () => {
-    if (!session?.user?.id) return;
+    const userId = (session as any)?.user?.id;
+    if (!userId) return;
 
     setLoading(true);
     setMessage(null);
 
     try {
-      const response = await fetch(`/api/users/${session.user.id}`, {
+      const response = await fetch(`/api/users/${userId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
