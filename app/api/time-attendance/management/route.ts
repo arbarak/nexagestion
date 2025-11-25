@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       const { employeeId, leaveCode, leaveType, startDate, endDate, reason } =
         leaveRequestSchema.parse(body);
 
-      const request = await timeAttendanceService.createLeaveRequest(
+      const leaveRequest = await timeAttendanceService.createLeaveRequest(
         employeeId,
         leaveCode,
         leaveType,
@@ -123,19 +123,22 @@ export async function POST(request: NextRequest) {
         reason
       );
 
-      return NextResponse.json(request, { status: 201 });
+      return NextResponse.json(leaveRequest, { status: 201 });
     } else if (action === 'approve-leave-request') {
       const body = await request.json();
       const { leaveRequestId, approvedBy } = z
         .object({ leaveRequestId: z.string(), approvedBy: z.string() })
         .parse(body);
 
-      const request = await timeAttendanceService.approveLeaveRequest(leaveRequestId, approvedBy);
-      if (!request) {
+      const leaveRequest = await timeAttendanceService.approveLeaveRequest(
+        leaveRequestId,
+        approvedBy
+      );
+      if (!leaveRequest) {
         return NextResponse.json({ error: 'Leave request not found' }, { status: 404 });
       }
 
-      return NextResponse.json(request);
+      return NextResponse.json(leaveRequest);
     } else if (action === 'create-timesheet') {
       const body = await request.json();
       const { employeeId, timesheetCode, weekStartDate, weekEndDate, totalHours, overtimeHours } =

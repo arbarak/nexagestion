@@ -23,21 +23,27 @@ interface Employee {
 
 export default function AttendancePage() {
   const { data: session } = useSession();
+  const sessionUser = (session as any)?.user;
   const [attendance, setAttendance] = useState<Attendance[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
+    if (!session) return;
     fetchData();
-  }, []);
+  }, [session]);
 
   const fetchData = async () => {
     try {
+      if (!sessionUser) {
+        return;
+      }
+
       setLoading(true);
       const [attendanceRes, employeesRes] = await Promise.all([
-        fetch(`/api/employees/attendance?groupId=${session?.user?.groupId}`),
-        fetch(`/api/employees?companyId=${session?.user?.companyId}`),
+        fetch(`/api/employees/attendance?groupId=${sessionUser.groupId || ""}`),
+        fetch(`/api/employees?companyId=${sessionUser.companyId || ""}`),
       ]);
 
       if (attendanceRes.ok) {
@@ -63,7 +69,7 @@ export default function AttendancePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: sessionUser?.groupId,
         }),
       });
 
@@ -150,4 +156,3 @@ export default function AttendancePage() {
     </div>
   );
 }
-

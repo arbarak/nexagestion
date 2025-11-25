@@ -7,7 +7,6 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 
 const createUserSchema = z.object({
-  groupId: z.string(),
   companyId: z.string(),
   firstName: z.string(),
   lastName: z.string(),
@@ -22,16 +21,16 @@ export async function GET(request: NextRequest) {
     checkPermission(session, "USERS", "READ");
 
     const { searchParams } = new URL(request.url);
-    const groupId = searchParams.get("groupId");
+    const companyId = searchParams.get("companyId");
 
-    if (!groupId) {
-      throw ErrorCodes.VALIDATION_ERROR("groupId is required");
+    if (!companyId) {
+      throw ErrorCodes.VALIDATION_ERROR("companyId is required");
     }
 
-    checkGroupAccess(session, groupId);
+    checkGroupAccess(session, companyId);
 
     const users = await prisma.user.findMany({
-      where: { groupId },
+      where: { companyId },
       select: {
         id: true,
         firstName: true,
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = createUserSchema.parse(body);
 
-    checkGroupAccess(session, data.groupId);
+    checkGroupAccess(session, data.companyId);
 
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
@@ -73,7 +72,6 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.create({
       data: {
-        groupId: data.groupId,
         companyId: data.companyId,
         firstName: data.firstName,
         lastName: data.lastName,

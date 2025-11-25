@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { reportType, format, dateRange, filters } = exportSchema.parse(body);
+    const payload = await request.json();
+    const { reportType, format, dateRange, filters } = exportSchema.parse(payload);
 
     // Generate export based on format
     let content: string | Buffer;
@@ -50,7 +50,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid format' }, { status: 400 });
     }
 
-    return new NextResponse(content, {
+    const responseBody = typeof content === 'string' ? content : new Uint8Array(content);
+
+    return new NextResponse(responseBody, {
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `attachment; filename="${filename}"`,
@@ -107,4 +109,3 @@ function getReportData(reportType: string, filters?: any): any[] {
     { Date: '2024-01-02', 'Order ID': 'ORD002', Customer: 'Customer 2', Amount: '$3,500', Status: 'Completed' },
   ];
 }
-

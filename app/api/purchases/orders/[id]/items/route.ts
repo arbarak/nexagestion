@@ -49,6 +49,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "PURCHASE_ORDER", "UPDATE");
@@ -72,14 +73,14 @@ export async function POST(
 
     const taxRate = data.taxRateId
       ? await prisma.taxRate.findUnique({
-          where: { id: data.taxRateId },
-        })
+        where: { id: data.taxRateId },
+      })
       : null;
 
     const subtotal = data.quantity * data.unitPrice;
     const discountAmount = (subtotal * (data.discount || 0)) / 100;
     const taxableAmount = subtotal - discountAmount;
-    const taxAmount = taxRate ? (taxableAmount * taxRate.rate) / 100 : 0;
+    const taxAmount = taxRate ? (taxableAmount * Number(taxRate.rate)) / 100 : 0;
     const totalAmount = taxableAmount + taxAmount;
 
     const item = await prisma.purchaseOrderItem.create({
@@ -105,8 +106,14 @@ export async function POST(
       where: { orderId: id },
     });
 
-    const totalAmount_all = allItems.reduce((sum, item) => sum + item.totalAmount, 0);
-    const totalTax_all = allItems.reduce((sum, item) => sum + item.taxAmount, 0);
+    const totalAmount_all = allItems.reduce(
+      (sum: number, item: (typeof allItems)[number]) => sum + item.totalAmount,
+      0
+    );
+    const totalTax_all = allItems.reduce(
+      (sum: number, item: (typeof allItems)[number]) => sum + item.taxAmount,
+      0
+    );
 
     await prisma.purchaseOrder.update({
       where: { id: id },
@@ -121,4 +128,3 @@ export async function POST(
     return handleApiError(error);
   }
 }
-

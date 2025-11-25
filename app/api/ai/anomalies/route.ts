@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Store anomaly detection result
-    const result = await prisma.aiAnomaly.create({
+    const result = await prisma.aIAnomaly.create({
       data: {
         companyId: session.companyId,
         type,
@@ -106,8 +106,15 @@ async function detectPaymentAnomalies(companyId: string, threshold: number) {
 }
 
 async function detectCustomerAnomalies(companyId: string, threshold: number) {
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { groupId: true },
+  });
+
+  if (!company) return [];
+
   const clients = await prisma.client.findMany({
-    where: { companyId },
+    where: { groupId: company.groupId },
     include: { sales: true },
   });
 
@@ -145,7 +152,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    const anomalies = await prisma.aiAnomaly.findMany({
+    const anomalies = await prisma.aIAnomaly.findMany({
       where: {
         companyId: session.companyId,
         ...(type && { type }),
@@ -160,5 +167,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch anomalies' }, { status: 500 });
   }
 }
-
-

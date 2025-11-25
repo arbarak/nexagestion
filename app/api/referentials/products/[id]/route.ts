@@ -21,13 +21,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "READ");
 
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: { category: true, brand: true },
     });
 
@@ -46,13 +47,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "UPDATE");
 
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!product) throw ErrorCodes.NOT_FOUND("Product not found");
@@ -63,7 +65,7 @@ export async function PATCH(
     const data = updateProductSchema.parse(body);
 
     const updated = await prisma.product.update({
-      where: { id: params.id },
+      where: { id },
       data,
       include: { category: true, brand: true },
     });
@@ -79,13 +81,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
 
     checkPermission(session, "PRODUCT", "DELETE");
 
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!product) throw ErrorCodes.NOT_FOUND("Product not found");
@@ -93,7 +96,7 @@ export async function DELETE(
     checkGroupAccess(session, product.groupId);
 
     await prisma.product.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Product deleted successfully" });
@@ -101,4 +104,3 @@ export async function DELETE(
     return handleApiError(error);
   }
 }
-

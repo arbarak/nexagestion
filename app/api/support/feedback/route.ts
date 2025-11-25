@@ -87,11 +87,20 @@ export async function POST(request: NextRequest) {
       const body = await request.json();
       const { title, description, questions } = surveySchema.parse(body);
 
+      const questionsWithIds = questions.map((question) => ({
+        id: typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : Math.random().toString(36).slice(2, 11),
+        question: question.question,
+        type: question.type,
+        options: question.options,
+      }));
+
       const survey = await feedbackService.createSurvey(
         session.companyId,
         title,
         description,
-        questions
+        questionsWithIds
       );
 
       return NextResponse.json(survey, { status: 201 });

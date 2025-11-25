@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
       data: {
         companyId: session.companyId,
         userId: session.userId,
+        eventType: entityType || 'OTHER',
         action,
         entityType,
         entityId,

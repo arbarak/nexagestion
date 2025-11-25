@@ -27,7 +27,7 @@ export default function CategoriesPage() {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/referentials/categories?groupId=${session?.user?.groupId}`
+        `/api/referentials/categories?groupId=${(session as any)?.user?.groupId}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -53,7 +53,7 @@ export default function CategoriesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: (session as any)?.user?.groupId,
         }),
       });
 

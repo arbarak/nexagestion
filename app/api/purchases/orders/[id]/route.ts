@@ -49,6 +49,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "PURCHASE", "UPDATE");
@@ -88,6 +89,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) throw ErrorCodes.UNAUTHORIZED();
     checkPermission(session, "PURCHASE", "DELETE");
@@ -113,4 +115,3 @@ export async function DELETE(
     return handleApiError(error);
   }
 }
-

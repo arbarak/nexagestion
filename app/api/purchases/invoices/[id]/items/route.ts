@@ -73,14 +73,14 @@ export async function POST(
 
     const taxRate = data.taxRateId
       ? await prisma.taxRate.findUnique({
-          where: { id: data.taxRateId },
-        })
+        where: { id: data.taxRateId },
+      })
       : null;
 
     const subtotal = data.quantity * data.unitPrice;
     const discountAmount = (subtotal * (data.discount || 0)) / 100;
     const taxableAmount = subtotal - discountAmount;
-    const taxAmount = taxRate ? (taxableAmount * taxRate.rate) / 100 : 0;
+    const taxAmount = taxRate ? (taxableAmount * Number(taxRate.rate)) / 100 : 0;
     const totalAmount = taxableAmount + taxAmount;
 
     const item = await prisma.purchaseInvoiceItem.create({

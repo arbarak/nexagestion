@@ -53,6 +53,7 @@ model Company {
   employees Employee[]
   boats      Boat[]
   sales      Sale[]
+  invoices   Invoice[]
   purchases Purchase[]
   stocks    Stock[]
   payments  Payment[]
@@ -1273,7 +1274,5 @@ model SearchIndex {
   @@unique([companyId, type, entityId])
   @@index([companyId])
   @@index([type])
-  @@fulltext([title, content])
   @@map("search_indexes")
 }
-

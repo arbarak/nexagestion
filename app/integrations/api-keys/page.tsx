@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DataTable } from "@/components/data-table";
+import { useSession } from "next-auth/react";
 
 interface ApiKey {
   id: string;
@@ -13,6 +14,8 @@ interface ApiKey {
 }
 
 export default function ApiKeysPage() {
+  const { data: session } = useSession();
+  const sessionUser = (session as any)?.user;
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -43,8 +46,8 @@ export default function ApiKeysPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
-          companyId: session?.user?.companyId,
+          groupId: sessionUser?.groupId,
+          companyId: sessionUser?.companyId,
         }),
       });
 

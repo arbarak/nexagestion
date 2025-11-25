@@ -21,11 +21,11 @@ export async function POST(request: NextRequest) {
     // Get or create conversation
     let conversation;
     if (conversationId) {
-      conversation = await prisma.aiConversation.findUnique({
+      conversation = await prisma.aIConversation.findUnique({
         where: { id: conversationId },
       });
     } else {
-      conversation = await prisma.aiConversation.create({
+      conversation = await prisma.aIConversation.create({
         data: {
           companyId: session.companyId,
           userId: session.userId,
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Store user message
-    await prisma.aiMessage.create({
+    await prisma.aIMessage.create({
       data: {
         conversationId: conversation.id,
         role: 'user',
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const response = await generateAIResponse(message, session.companyId);
 
     // Store AI response
-    const aiMessage = await prisma.aiMessage.create({
+    const aiMessage = await prisma.aIMessage.create({
       data: {
         conversationId: conversation.id,
         role: 'assistant',
@@ -93,8 +93,17 @@ async function generateAIResponse(message: string, companyId: string): Promise<s
   }
 
   if (lowerMessage.includes('customer') || lowerMessage.includes('client')) {
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { groupId: true },
+    });
+
+    if (!company) {
+      return `I couldn't access your company information. Please try again.`;
+    }
+
     const clients = await prisma.client.findMany({
-      where: { companyId },
+      where: { groupId: company.groupId },
     });
     return `You have ${clients.length} customers in your system. Would you like to see top customers?`;
   }
@@ -118,7 +127,7 @@ export async function GET(request: NextRequest) {
 
     if (!conversationId) {
       // Get all conversations
-      const conversations = await prisma.aiConversation.findMany({
+      const conversations = await prisma.aIConversation.findMany({
         where: { companyId: session.companyId },
         orderBy: { createdAt: 'desc' },
         take: 10,
@@ -127,7 +136,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get messages in conversation
-    const messages = await prisma.aiMessage.findMany({
+    const messages = await prisma.aIMessage.findMany({
       where: { conversationId },
       orderBy: { createdAt: 'asc' },
     });
@@ -138,7 +147,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch chat' }, { status: 500 });
   }
 }
-
-
 
 

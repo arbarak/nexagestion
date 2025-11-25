@@ -28,10 +28,10 @@ export default function InventoryReportsPage() {
       setLoading(true);
       const [stockRes, movementsRes] = await Promise.all([
         fetch(
-          `/api/inventory/stock?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/inventory/stock?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
         fetch(
-          `/api/inventory/movements?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/inventory/movements?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
       ]);
 

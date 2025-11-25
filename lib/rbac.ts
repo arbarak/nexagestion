@@ -9,7 +9,7 @@ export type Action =
   | "APPROVE"
   | "MANAGE_USERS";
 
-export type Resource =
+type BaseResource =
   | "COMPANY"
   | "CLIENT"
   | "SUPPLIER"
@@ -24,8 +24,22 @@ export type Resource =
   | "REPORT"
   | "USER";
 
-// Permission matrix: Role -> Resource -> Actions
-const permissions: Record<Role, Record<Resource, Action[]>> = {
+export type Resource =
+  | BaseResource
+  | "PURCHASE_ORDER"
+  | "REPORTS"
+  | "USERS"
+  | "WEBHOOKS";
+
+// Normalize aliases used across routes to a canonical resource
+const resourceAliases: Partial<Record<Resource, BaseResource>> = {
+  PURCHASE_ORDER: "PURCHASE",
+  REPORTS: "REPORT",
+  USERS: "USER",
+  WEBHOOKS: "COMPANY",
+};
+
+const permissions: Record<Role, Record<BaseResource, Action[]>> = {
   ADMIN: {
     COMPANY: ["CREATE", "READ", "UPDATE", "DELETE", "MANAGE_USERS"],
     CLIENT: ["CREATE", "READ", "UPDATE", "DELETE"],
@@ -103,15 +117,22 @@ const permissions: Record<Role, Record<Resource, Action[]>> = {
   },
 };
 
+function normalizeResource(resource: Resource): BaseResource {
+  const mapped = resourceAliases[resource];
+  if (mapped) return mapped;
+  return resource as BaseResource;
+}
+
 export function hasPermission(
   role: Role,
   resource: Resource,
   action: Action
 ): boolean {
+  const normalizedResource = normalizeResource(resource);
   const rolePermissions = permissions[role];
   if (!rolePermissions) return false;
 
-  const resourceActions = rolePermissions[resource];
+  const resourceActions = rolePermissions[normalizedResource];
   if (!resourceActions) return false;
 
   return resourceActions.includes(action);
@@ -125,7 +146,6 @@ export function canAccess(
   return hasPermission(role, resource, action);
 }
 
-export function getPermissions(role: Role): Record<Resource, Action[]> {
+export function getPermissions(role: Role): Record<BaseResource, Action[]> {
   return permissions[role] || {};
 }
-

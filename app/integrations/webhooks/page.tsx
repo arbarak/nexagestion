@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DataTable } from "@/components/data-table";
+import { useSession } from "next-auth/react";
 
 interface Webhook {
   id: string;
@@ -13,6 +14,8 @@ interface Webhook {
 }
 
 export default function WebhooksPage() {
+  const { data: session } = useSession();
+  const sessionUser = (session as any)?.user;
   const [webhooks, setWebhooks] = useState<Webhook[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -57,8 +60,8 @@ export default function WebhooksPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
-          companyId: session?.user?.companyId,
+          groupId: sessionUser?.groupId,
+          companyId: sessionUser?.companyId,
         }),
       });
 

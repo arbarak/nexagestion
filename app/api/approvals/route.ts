@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         companyId: session.companyId,
         ...(status && { status }),
       },
-      include: { requestedByUser: true, approvers: true },
+      include: { requestedByUser: true },
       orderBy: { createdAt: 'desc' },
     });
 

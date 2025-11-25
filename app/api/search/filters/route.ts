@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       take: 50,
     });
 
-    filters.tags = tags.map(tag => ({
+    filters.tags = tags.map((tag: (typeof tags)[number]) => ({
       label: tag.name,
       value: tag.id,
     }));

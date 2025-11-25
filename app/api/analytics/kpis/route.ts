@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.client.count({
         where: {
-          companyId: session.companyId,
+          groupId: session.companyId,
         },
       }),
       prisma.stock.aggregate({
@@ -98,5 +98,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch KPIs' }, { status: 500 });
   }
 }
-
 

@@ -30,7 +30,7 @@ export default function VesselsPage() {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/maritime/vessels?groupId=${session?.user?.groupId}`
+        `/api/maritime/vessels?groupId=${(session as any)?.user?.groupId}`
       );
 
       if (response.ok) {
@@ -57,7 +57,7 @@ export default function VesselsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: (session as any)?.user?.groupId,
         }),
       });
 

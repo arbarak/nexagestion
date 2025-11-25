@@ -7,7 +7,6 @@ import { z } from "zod";
 
 const updateStockSchema = z.object({
   quantity: z.number().min(0).optional(),
-  warehouseLocation: z.string().optional(),
 });
 
 export async function GET(
@@ -24,6 +23,7 @@ export async function GET(
       where: { id },
       include: {
         product: true,
+        company: true,
         movements: {
           orderBy: { createdAt: "desc" },
           take: 10,
@@ -32,7 +32,7 @@ export async function GET(
     });
 
     if (!stock) throw ErrorCodes.NOT_FOUND("Stock not found");
-    checkGroupAccess(session, stock.groupId);
+    checkGroupAccess(session, stock.company.groupId);
 
     return NextResponse.json({ data: stock });
   } catch (error) {
@@ -52,10 +52,11 @@ export async function PATCH(
     const { id } = await params;
     const stock = await prisma.stock.findUnique({
       where: { id },
+      include: { company: true },
     });
 
     if (!stock) throw ErrorCodes.NOT_FOUND("Stock not found");
-    checkGroupAccess(session, stock.groupId);
+    checkGroupAccess(session, stock.company.groupId);
 
     const body = await request.json();
     const data = updateStockSchema.parse(body);
@@ -64,7 +65,6 @@ export async function PATCH(
       where: { id },
       data: {
         quantity: data.quantity,
-        warehouseLocation: data.warehouseLocation,
       },
       include: {
         product: true,
@@ -89,10 +89,11 @@ export async function DELETE(
     const { id } = await params;
     const stock = await prisma.stock.findUnique({
       where: { id },
+      include: { company: true },
     });
 
     if (!stock) throw ErrorCodes.NOT_FOUND("Stock not found");
-    checkGroupAccess(session, stock.groupId);
+    checkGroupAccess(session, stock.company.groupId);
 
     // Delete associated movements first
     await prisma.stockMovement.deleteMany({

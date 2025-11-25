@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
-import { ReferentialForm } from "@/components/referential-form";
+import { ReferentialForm, type FormField } from "@/components/referential-form";
+import { useSession } from "next-auth/react";
 
 interface Account {
   id: string;
@@ -12,6 +13,8 @@ interface Account {
 }
 
 export default function AccountsPage() {
+  const { data: session } = useSession();
+  const sessionUser = (session as any)?.user;
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
@@ -48,8 +51,8 @@ export default function AccountsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
-          companyId: session?.user?.companyId,
+          groupId: sessionUser?.groupId,
+          companyId: sessionUser?.companyId,
         }),
       });
 
@@ -79,14 +82,20 @@ export default function AccountsPage() {
     }
   };
 
-  const fields = [
+  const fields: FormField[] = [
     { name: "accountCode", label: "Account Code", type: "text", required: true },
     { name: "accountName", label: "Account Name", type: "text", required: true },
     {
       name: "accountType",
       label: "Account Type",
       type: "select",
-      options: ["ASSET", "LIABILITY", "EQUITY", "REVENUE", "EXPENSE"],
+      options: [
+        { value: "ASSET", label: "ASSET" },
+        { value: "LIABILITY", label: "LIABILITY" },
+        { value: "EQUITY", label: "EQUITY" },
+        { value: "REVENUE", label: "REVENUE" },
+        { value: "EXPENSE", label: "EXPENSE" },
+      ],
       required: true,
     },
     { name: "balance", label: "Balance", type: "number", required: true },
@@ -95,7 +104,11 @@ export default function AccountsPage() {
       name: "status",
       label: "Status",
       type: "select",
-      options: ["ACTIVE", "INACTIVE", "ARCHIVED"],
+      options: [
+        { value: "ACTIVE", label: "ACTIVE" },
+        { value: "INACTIVE", label: "INACTIVE" },
+        { value: "ARCHIVED", label: "ARCHIVED" },
+      ],
       required: true,
     },
   ];
@@ -116,8 +129,9 @@ export default function AccountsPage() {
           </CardHeader>
           <CardContent>
             <ReferentialForm
+              title={editingAccount ? "Edit Account" : "Create New Account"}
               fields={fields}
-              initialData={editingAccount}
+              initialData={editingAccount || undefined}
               onSubmit={handleSubmit}
               onCancel={() => {
                 setShowForm(false);
@@ -157,4 +171,3 @@ export default function AccountsPage() {
     </div>
   );
 }
-

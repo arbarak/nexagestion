@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
-import { ReferentialForm } from "@/components/referential-form";
+import { ClientDialog } from "@/components/referentials/client-dialog";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 
 interface Client {
@@ -30,7 +31,7 @@ export default function ClientsPage() {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/referentials/clients?groupId=${session?.user?.groupId}`
+        `/api/referentials/clients?groupId=${(session as any)?.user?.groupId}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -56,7 +57,7 @@ export default function ClientsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: (session as any)?.user?.groupId,
         }),
       });
 
@@ -101,46 +102,39 @@ export default function ClientsPage() {
 
   return (
     <div className="space-y-6 p-8">
-      <h1 className="text-3xl font-bold">Clients Management</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Clients Management</h1>
+        <Button onClick={() => {
+          setEditingClient(null);
+          setShowForm(true);
+        }}>
+          Add Client
+        </Button>
+      </div>
 
-      {showForm ? (
-        <Card className="p-6">
-          <ReferentialForm
-            title={editingClient ? "Edit Client" : "Add New Client"}
-            fields={[
-              { name: "code", label: "Code", required: true },
-              { name: "name", label: "Name", required: true },
-              { name: "email", label: "Email", type: "email" },
-              { name: "phone", label: "Phone" },
-              { name: "address", label: "Address" },
-              { name: "city", label: "City" },
-              { name: "country", label: "Country" },
-              { name: "ice", label: "ICE" },
-              { name: "if", label: "IF" },
-            ]}
-            initialData={editingClient || undefined}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingClient(null);
-            }}
-          />
-        </Card>
-      ) : (
-        <Card className="p-6">
-          <DataTable
-            data={clients}
-            columns={columns}
-            onEdit={(client) => {
-              setEditingClient(client);
-              setShowForm(true);
-            }}
-            onDelete={handleDelete}
-            onAdd={() => setShowForm(true)}
-            searchField="name"
-          />
-        </Card>
-      )}
+      <Card className="p-6">
+        <DataTable
+          data={clients}
+          columns={columns}
+          onEdit={(client) => {
+            setEditingClient(client);
+            setShowForm(true);
+          }}
+          onDelete={handleDelete}
+          onAdd={() => {
+            setEditingClient(null);
+            setShowForm(true);
+          }}
+          searchField="name"
+        />
+      </Card>
+
+      <ClientDialog
+        open={showForm}
+        onOpenChange={setShowForm}
+        initialData={editingClient || undefined}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }

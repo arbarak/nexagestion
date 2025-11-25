@@ -28,10 +28,10 @@ export default function PurchaseReportsPage() {
       setLoading(true);
       const [ordersRes, invoicesRes] = await Promise.all([
         fetch(
-          `/api/purchases/orders?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/purchases/orders?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
         fetch(
-          `/api/purchases/invoices?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/purchases/invoices?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
       ]);
 

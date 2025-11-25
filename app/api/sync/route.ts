@@ -93,6 +93,16 @@ export async function GET(request: NextRequest) {
 
     const lastSync = new Date(lastSyncTime);
 
+    // Get company to access groupId for shared resources
+    const company = await prisma.company.findUnique({
+      where: { id: session.companyId },
+      select: { groupId: true },
+    });
+
+    if (!company) {
+      return NextResponse.json({ error: 'Company not found' }, { status: 404 });
+    }
+
     // Get all data updated since last sync
     const data = {
       sales: await prisma.sale.findMany({
@@ -115,7 +125,7 @@ export async function GET(request: NextRequest) {
       }),
       clients: await prisma.client.findMany({
         where: {
-          companyId: session.companyId,
+          groupId: company.groupId,
           updatedAt: { gt: lastSync },
         },
       }),

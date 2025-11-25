@@ -6,18 +6,12 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const createEmployeeSchema = z.object({
-  groupId: z.string(),
   companyId: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   email: z.string().email(),
   phone: z.string(),
-  department: z.string(),
   position: z.string(),
-  hireDate: z.string().datetime(),
-  salary: z.number().positive(),
-  employmentType: z.enum(["FULL_TIME", "PART_TIME", "CONTRACT", "TEMPORARY"]),
-  status: z.enum(["ACTIVE", "INACTIVE", "ON_LEAVE", "TERMINATED"]),
 });
 
 export async function GET(request: NextRequest) {
@@ -53,7 +47,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = createEmployeeSchema.parse(body);
 
-    checkGroupAccess(session, data.groupId);
+    const company = await prisma.company.findUnique({
+      where: { id: data.companyId },
+    });
+
+    if (!company) {
+      throw ErrorCodes.NOT_FOUND("Company not found");
+    }
+
+    checkGroupAccess(session, company.groupId);
 
     // Check email uniqueness
     const existingEmployee = await prisma.employee.findFirst({
@@ -69,18 +71,12 @@ export async function POST(request: NextRequest) {
 
     const employee = await prisma.employee.create({
       data: {
-        groupId: data.groupId,
         companyId: data.companyId,
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
         phone: data.phone,
-        department: data.department,
         position: data.position,
-        hireDate: new Date(data.hireDate),
-        salary: data.salary,
-        employmentType: data.employmentType,
-        status: data.status,
       },
     });
 

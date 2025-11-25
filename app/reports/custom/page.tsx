@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select } from '@/components/ui/select';
 import { Plus, Download, Trash2 } from 'lucide-react';
 
 interface CustomReport {
@@ -93,16 +93,17 @@ export default function CustomReportsPage() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
-            <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sales">Sales</SelectItem>
-                <SelectItem value="inventory">Inventory</SelectItem>
-                <SelectItem value="financial">Financial</SelectItem>
-                <SelectItem value="employees">Employees</SelectItem>
-              </SelectContent>
+            <Select
+              value={formData.type}
+              onChange={(event) =>
+                setFormData({ ...formData, type: event.target.value })
+              }
+              className="w-full"
+            >
+              <option value="sales">Sales</option>
+              <option value="inventory">Inventory</option>
+              <option value="financial">Financial</option>
+              <option value="employees">Employees</option>
             </Select>
             <div className="flex gap-2">
               <Button onClick={handleCreateReport}>Create</Button>
@@ -156,4 +157,3 @@ export default function CustomReportsPage() {
     </div>
   );
 }
-

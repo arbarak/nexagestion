@@ -28,10 +28,10 @@ export default function SalesReportsPage() {
       setLoading(true);
       const [ordersRes, invoicesRes] = await Promise.all([
         fetch(
-          `/api/sales/orders?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/sales/orders?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
         fetch(
-          `/api/sales/invoices?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/sales/invoices?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
       ]);
 

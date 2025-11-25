@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Store recommendation
-    const rec = await prisma.aiRecommendation.create({
+    const rec = await prisma.aIRecommendation.create({
       data: {
         companyId: session.companyId,
         type,
@@ -52,6 +52,13 @@ export async function POST(request: NextRequest) {
 }
 
 async function getProductRecommendations(companyId: string, clientId: string, limit: number) {
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { groupId: true },
+  });
+
+  if (!company) return [];
+
   const clientSales = await prisma.sale.findMany({
     where: { companyId, clientId },
     include: { items: { include: { product: true } } },
@@ -61,7 +68,7 @@ async function getProductRecommendations(companyId: string, clientId: string, li
 
   const recommendations = await prisma.product.findMany({
     where: {
-      companyId,
+      groupId: company.groupId,
       id: { notIn: Array.from(productIds) },
     },
     take: limit,
@@ -75,8 +82,15 @@ async function getProductRecommendations(companyId: string, clientId: string, li
 }
 
 async function getCustomerRecommendations(companyId: string, limit: number) {
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { groupId: true },
+  });
+
+  if (!company) return [];
+
   const clients = await prisma.client.findMany({
-    where: { companyId },
+    where: { groupId: company.groupId },
     include: { sales: true },
   });
 
@@ -91,8 +105,15 @@ async function getCustomerRecommendations(companyId: string, limit: number) {
 }
 
 async function getSupplierRecommendations(companyId: string, limit: number) {
+  const company = await prisma.company.findUnique({
+    where: { id: companyId },
+    select: { groupId: true },
+  });
+
+  if (!company) return [];
+
   const suppliers = await prisma.supplier.findMany({
-    where: { companyId },
+    where: { groupId: company.groupId },
     include: { purchases: true },
   });
 
@@ -123,7 +144,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    const recommendations = await prisma.aiRecommendation.findMany({
+    const recommendations = await prisma.aIRecommendation.findMany({
       where: {
         companyId: session.companyId,
         ...(type && { type }),
@@ -138,8 +159,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch recommendations' }, { status: 500 });
   }
 }
-
-
-
 
 

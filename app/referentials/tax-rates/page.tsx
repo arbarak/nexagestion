@@ -29,7 +29,7 @@ export default function TaxRatesPage() {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/referentials/tax-rates?groupId=${session?.user?.groupId}`
+        `/api/referentials/tax-rates?groupId=${(session as any)?.user?.groupId}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -55,7 +55,7 @@ export default function TaxRatesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
+          groupId: (session as any)?.user?.groupId,
         }),
       });
 

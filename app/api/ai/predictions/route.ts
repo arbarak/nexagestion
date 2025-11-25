@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const predictions = generatePredictions(sales, type, period);
 
     // Store prediction
-    const prediction = await prisma.aiPrediction.create({
+    const prediction = await prisma.aIPrediction.create({
       data: {
         companyId: session.companyId,
         type,
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    const predictions = await prisma.aiPrediction.findMany({
+    const predictions = await prisma.aIPrediction.findMany({
       where: {
         companyId: session.companyId,
         ...(type && { type }),

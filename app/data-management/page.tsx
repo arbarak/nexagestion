@@ -5,13 +5,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select } from "@/components/ui/select";
 
 export default function DataManagementPage() {
   const { data: session } = useSession();
@@ -128,32 +122,32 @@ export default function DataManagementPage() {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="export-module">Module</Label>
-              <Select value={selectedModule} onValueChange={setSelectedModule}>
-                <SelectTrigger id="export-module" className="mt-2">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {modules.map((mod) => (
-                    <SelectItem key={mod.value} value={mod.value}>
-                      {mod.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+              <Select
+                id="export-module"
+                className="mt-2"
+                value={selectedModule}
+                onChange={(event) => setSelectedModule(event.target.value)}
+              >
+                {modules.map((mod) => (
+                  <option key={mod.value} value={mod.value}>
+                    {mod.label}
+                  </option>
+                ))}
               </Select>
             </div>
             <div>
               <Label htmlFor="export-format">Format</Label>
-              <Select value={selectedFormat} onValueChange={setSelectedFormat}>
-                <SelectTrigger id="export-format" className="mt-2">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {formats.map((fmt) => (
-                    <SelectItem key={fmt.value} value={fmt.value}>
-                      {fmt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+              <Select
+                id="export-format"
+                className="mt-2"
+                value={selectedFormat}
+                onChange={(event) => setSelectedFormat(event.target.value)}
+              >
+                {formats.map((fmt) => (
+                  <option key={fmt.value} value={fmt.value}>
+                    {fmt.label}
+                  </option>
+                ))}
               </Select>
             </div>
             <Button onClick={handleExport} className="w-full">
@@ -170,17 +164,17 @@ export default function DataManagementPage() {
           <CardContent className="space-y-4">
             <div>
               <Label htmlFor="import-module">Module</Label>
-              <Select value={selectedModule} onValueChange={setSelectedModule}>
-                <SelectTrigger id="import-module" className="mt-2">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {modules.map((mod) => (
-                    <SelectItem key={mod.value} value={mod.value}>
-                      {mod.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
+              <Select
+                id="import-module"
+                className="mt-2"
+                value={selectedModule}
+                onChange={(event) => setSelectedModule(event.target.value)}
+              >
+                {modules.map((mod) => (
+                  <option key={mod.value} value={mod.value}>
+                    {mod.label}
+                  </option>
+                ))}
               </Select>
             </div>
             <div>
@@ -203,4 +197,3 @@ export default function DataManagementPage() {
     </div>
   );
 }
-

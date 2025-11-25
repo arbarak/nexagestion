@@ -2,17 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/data-table";
-import { ReferentialForm } from "@/components/referential-form";
+import { SaleDialog } from "@/components/sales/sale-dialog";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 
 interface SalesOrder {
   id: string;
   orderNumber: string;
   orderDate: string;
-  status: string;
+  status: "DRAFT" | "QUOTE" | "ORDER" | "DELIVERY" | "INVOICED" | "PAID" | "CANCELLED";
   totalAmount: number;
   client?: { name: string };
+  clientId: string;
+  items: { productId: string; quantity: number; unitPrice: number }[];
 }
 
 export default function SalesOrdersPage() {
@@ -32,10 +35,10 @@ export default function SalesOrdersPage() {
       setLoading(true);
       const [ordersRes, clientsRes] = await Promise.all([
         fetch(
-          `/api/sales/orders?groupId=${session?.user?.groupId}&companyId=${session?.user?.companyId}`
+          `/api/sales/orders?groupId=${(session as any)?.user?.groupId}&companyId=${(session as any)?.user?.companyId}`
         ),
         fetch(
-          `/api/referentials/clients?groupId=${session?.user?.groupId}`
+          `/api/referentials/clients?groupId=${(session as any)?.user?.groupId}`
         ),
       ]);
 
@@ -67,8 +70,8 @@ export default function SalesOrdersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          groupId: session?.user?.groupId,
-          companyId: session?.user?.companyId,
+          groupId: (session as any)?.user?.groupId,
+          companyId: (session as any)?.user?.companyId,
         }),
       });
 
@@ -116,61 +119,39 @@ export default function SalesOrdersPage() {
 
   return (
     <div className="space-y-6 p-8">
-      <h1 className="text-3xl font-bold">Sales Orders</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Sales Orders</h1>
+        <Button onClick={() => {
+          setEditingOrder(null);
+          setShowForm(true);
+        }}>
+          New Order
+        </Button>
+      </div>
 
-      {showForm ? (
-        <Card className="p-6">
-          <ReferentialForm
-            title={editingOrder ? "Edit Order" : "New Sales Order"}
-            fields={[
-              { name: "orderNumber", label: "Order #", required: true },
-              {
-                name: "clientId",
-                label: "Client",
-                type: "select",
-                required: true,
-                options: clients.map((c) => ({ value: c.id, label: c.name })),
-              },
-              { name: "orderDate", label: "Order Date", type: "text", required: true },
-              { name: "dueDate", label: "Due Date", type: "text" },
-              {
-                name: "status",
-                label: "Status",
-                type: "select",
-                required: true,
-                options: [
-                  { value: "DRAFT", label: "Draft" },
-                  { value: "CONFIRMED", label: "Confirmed" },
-                  { value: "SHIPPED", label: "Shipped" },
-                  { value: "DELIVERED", label: "Delivered" },
-                  { value: "CANCELLED", label: "Cancelled" },
-                ],
-              },
-              { name: "notes", label: "Notes" },
-            ]}
-            initialData={editingOrder || undefined}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingOrder(null);
-            }}
-          />
-        </Card>
-      ) : (
-        <Card className="p-6">
-          <DataTable
-            data={orders}
-            columns={columns}
-            onEdit={(order) => {
-              setEditingOrder(order);
-              setShowForm(true);
-            }}
-            onDelete={handleDelete}
-            onAdd={() => setShowForm(true)}
-            searchField="orderNumber"
-          />
-        </Card>
-      )}
+      <Card className="p-6">
+        <DataTable
+          data={orders}
+          columns={columns}
+          onEdit={(order) => {
+            setEditingOrder(order);
+            setShowForm(true);
+          }}
+          onDelete={handleDelete}
+          onAdd={() => {
+            setEditingOrder(null);
+            setShowForm(true);
+          }}
+          searchField="orderNumber"
+        />
+      </Card>
+
+      <SaleDialog
+        open={showForm}
+        onOpenChange={setShowForm}
+        initialData={editingOrder || undefined}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }
