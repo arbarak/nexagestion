@@ -8,6 +8,11 @@ const nextConfig = {
   },
   compress: true,
   productionBrowserSourceMaps: false,
+  // Don't prerender error pages - they'll be rendered on-demand
+  onDemandEntries: {
+    maxInactiveAge: 60 * 1000,
+    maxMemoryUsageSize: 50 * 1024 * 1024,
+  },
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
