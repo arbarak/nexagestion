@@ -6,15 +6,21 @@ const nextConfig = {
   },
   output: "standalone",
   outputFileTracingRoot: __dirname,
-  webpack: (config) => {
+  swcMinify: true,
+  compress: true,
+  productionBrowserSourceMaps: false,
+  webpack: (config, { isServer }) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
       path: false,
       crypto: false,
     };
-    // Disable webpack cache to avoid disk space issues
-    config.cache = false;
+    // Use disk cache for webpack to speed up builds
+    config.cache = {
+      type: 'filesystem',
+      cacheDirectory: '.next/cache',
+    };
     return config;
   },
 };

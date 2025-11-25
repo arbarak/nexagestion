@@ -1,0 +1,70 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build outputs
+.next
+dist
+out
+build
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.production.local
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Development files
+.eslintignore
+biome.json
+tsconfig.json
+next.config.js
+
+# Documentation
+README.md
+docs
+.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Testing
+.test
+__tests__
+*.test.ts
+*.test.tsx
+jest.config.js
+vitest.config.ts
+
+# Temporary
+.cache
+.tmp
+temp
+
+# VCS
+.svn
+.hg
+CVS
+.bzr
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
