@@ -50,3 +50,10 @@ prisma/migrations/
 logs/
 *.log
 
+# TypeScript build info
+tsconfig.tsbuildinfo
+.next/tsbuildinfo/
+
+# Dokploy
+dokploy.json
+

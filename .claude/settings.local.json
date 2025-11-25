@@ -3,7 +3,11 @@
     "allow": [
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge -m \"$(cat <<''EOF''\nMerge frosty-lalande into main: Comprehensive bug fixes and deployment improvements\n\nThis merge brings all improvements from the frosty-lalande branch:\n\n✅ Fixed Dokploy Nixpacks build issues\n✅ Implemented settings update API\n✅ Created structured logging service\n✅ Fixed Prisma client instantiation (15 files)\n✅ Enhanced Docker configuration for production\n✅ Added health checks to Dockerfile\n\nThis resolves the \"tsconfig.tsbuildinfo not a directory\" error and ensures\nsuccessful deployments on Hostinger VPS with Dokploy.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\nEOF\n)\" origin/main)"
     ],
     "deny": [],
     "ask": []
