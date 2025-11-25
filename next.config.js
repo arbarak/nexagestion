@@ -6,8 +6,6 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ["@radix-ui/react-icons"],
   },
-  output: "standalone",
-  outputFileTracingRoot: __dirname,
   compress: true,
   productionBrowserSourceMaps: false,
   webpack: (config) => {
