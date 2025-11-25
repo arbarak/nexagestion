@@ -7,6 +7,8 @@ const nextConfig = {
   },
   compress: true,
   productionBrowserSourceMaps: false,
+  // Use standalone output to avoid prerendering issues with error pages
+  output: 'standalone',
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
