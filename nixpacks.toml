@@ -1,7 +1,0 @@
-[build]
-# Use the official Dockerfile instead of auto-generating build steps
-dockerfile = "Dockerfile"
-
-[phases]
-# Skip auto-detection phases and use custom build
-setup = { pkgs = ["nodejs_18", "npm"] }

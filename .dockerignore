@@ -9,8 +9,7 @@ npm-debug.log
 yarn-error.log
 pnpm-debug.log
 
-# Build outputs
-.next
+# Build outputs to exclude (but keep .next for incremental builds)
 dist
 out
 build
@@ -29,16 +28,14 @@ build
 *~
 .DS_Store
 
-# Development files
+# Development files only
 .eslintignore
 biome.json
-tsconfig.json
-next.config.js
 
 # Documentation
 README.md
 docs
-.md
+*.md
 
 # CI/CD
 .github

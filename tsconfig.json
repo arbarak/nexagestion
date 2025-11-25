@@ -29,6 +29,7 @@
     },
     "allowJs": true,
     "incremental": true,
+    "tsBuildInfoFile": ".next/tsbuildinfo/tsconfig.tsbuildinfo",
     "plugins": [
       {
         "name": "next"
