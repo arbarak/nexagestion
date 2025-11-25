@@ -90,8 +90,8 @@ export class DataWarehouse {
       lastUpdated: new Date(),
     });
 
-    // Products dimension
-    const productCount = await prisma.product.count({ where: { companyId } });
+    // Products dimension (uses groupId, not companyId)
+    const productCount = await prisma.product.count({ where: { groupId: company.groupId } });
     tables.push({
       id: 'dim_products',
       name: 'Products',
@@ -100,8 +100,8 @@ export class DataWarehouse {
       lastUpdated: new Date(),
     });
 
-    // Categories dimension
-    const categoryCount = await prisma.category.count({ where: { companyId } });
+    // Categories dimension (uses groupId, not companyId)
+    const categoryCount = await prisma.category.count({ where: { groupId: company.groupId } });
     tables.push({
       id: 'dim_categories',
       name: 'Categories',
