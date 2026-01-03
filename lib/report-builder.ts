@@ -23,7 +23,7 @@ export interface ReportData {
 
 export class ReportBuilder {
   async buildSalesReport(companyId: string, config: ReportConfig): Promise<ReportData> {
-    const orders = await prisma.order.findMany({
+    const sales = await prisma.sale.findMany({
       where: {
         companyId,
         ...(config.filters.dateFrom && { createdAt: { gte: new Date(config.filters.dateFrom) } }),
@@ -33,19 +33,19 @@ export class ReportBuilder {
       include: { items: true, client: true },
     });
 
-    const rows = orders.map((order: any) => ({
-      orderNumber: order.orderNumber,
-      clientName: order.client?.name,
-      totalAmount: order.totalAmount,
-      itemCount: order.items.length,
-      status: order.status,
-      createdAt: order.createdAt,
+    const rows = sales.map((sale: any) => ({
+      saleNumber: sale.number,
+      clientName: sale.client?.name,
+      totalAmount: sale.totalAmount,
+      itemCount: sale.items.length,
+      status: sale.status,
+      createdAt: sale.createdAt,
     }));
 
     const summary = {
-      totalOrders: rows.length,
+      totalSales: rows.length,
       totalRevenue: rows.reduce((sum: number, r: any) => sum + (r.totalAmount || 0), 0),
-      averageOrderValue: rows.length > 0 ? rows.reduce((sum: number, r: any) => sum + (r.totalAmount || 0), 0) / rows.length : 0,
+      averageSaleValue: rows.length > 0 ? rows.reduce((sum: number, r: any) => sum + (r.totalAmount || 0), 0) / rows.length : 0,
     };
 
     return {

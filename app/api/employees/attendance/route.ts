@@ -1,91 +1,93 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
-import { checkPermission, checkGroupAccess } from "@/lib/permissions";
-import { handleApiError, ErrorCodes } from "@/lib/api-error";
-import { prisma } from "@/lib/prisma";
-import { z } from "zod";
-
-const createAttendanceSchema = z.object({
-  groupId: z.string(),
-  employeeId: z.string(),
-  date: z.string().datetime(),
-  checkIn: z.string().time().optional(),
-  checkOut: z.string().time().optional(),
-  status: z.enum(["PRESENT", "ABSENT", "LATE", "HALF_DAY", "ON_LEAVE"]),
-  notes: z.string().optional(),
-});
-
-export async function GET(request: NextRequest) {
-  try {
-    const session = await getSession();
-    if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEE", "READ");
-
-    const { searchParams } = new URL(request.url);
-    const employeeId = searchParams.get("employeeId");
-    const groupId = searchParams.get("groupId");
-
-    if (!groupId) {
-      throw ErrorCodes.VALIDATION_ERROR("groupId is required");
-    }
-
-    checkGroupAccess(session, groupId);
-
-    const attendance = await prisma.attendance.findMany({
-      where: {
-        groupId,
-        ...(employeeId && { employeeId }),
-      },
-      include: {
-        employee: true,
-      },
-      orderBy: { date: "desc" },
-    });
-
-    return NextResponse.json({ data: attendance });
-  } catch (error) {
-    return handleApiError(error);
-  }
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyAuth } from '@/lib/auth';
+import { employeeService } from '@/lib/employee-service';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEE", "CREATE");
-
-    const body = await request.json();
-    const data = createAttendanceSchema.parse(body);
-
-    checkGroupAccess(session, data.groupId);
-
-    // Check if employee exists
-    const employee = await prisma.employee.findUnique({
-      where: { id: data.employeeId },
-    });
-
-    if (!employee) {
-      throw ErrorCodes.NOT_FOUND("Employee not found");
+    const session = await verifyAuth(request);
+    if (!session || !session.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const attendance = await prisma.attendance.create({
-      data: {
-        groupId: data.groupId,
-        employeeId: data.employeeId,
-        date: new Date(data.date),
-        checkIn: data.checkIn,
-        checkOut: data.checkOut,
-        status: data.status,
-        notes: data.notes,
-      },
-      include: {
-        employee: true,
-      },
-    });
+    const { employeeId, action, checkTime } = await request.json();
 
-    return NextResponse.json({ data: attendance }, { status: 201 });
+    if (!employeeId) {
+      return NextResponse.json({ error: 'employeeId is required' }, { status: 400 });
+    }
+
+    const time = new Date(checkTime || new Date());
+
+    if (action === 'check_in') {
+      const record = await employeeService.recordAttendance(session.companyId, employeeId, time);
+
+      return NextResponse.json(
+        {
+          status: 'success',
+          message: 'Check-in recorded',
+          record,
+        },
+        { status: 201 }
+      );
+    } else if (action === 'check_out') {
+      const record = await employeeService.recordCheckOut(session.companyId, employeeId, time);
+
+      if (!record) {
+        return NextResponse.json(
+          { error: 'No check-in found for today' },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        status: 'success',
+        message: 'Check-out recorded',
+        record,
+      });
+    } else {
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    }
   } catch (error) {
-    return handleApiError(error);
+    console.error('Attendance error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Request failed' },
+      { status: 500 }
+    );
   }
 }
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await verifyAuth(request);
+    if (!session || !session.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const employeeId = searchParams.get('employeeId');
+    const startDate = new Date(searchParams.get('startDate') || new Date().toISOString());
+    const endDate = new Date(searchParams.get('endDate') || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString());
+
+    if (!employeeId) {
+      return NextResponse.json({ error: 'employeeId is required' }, { status: 400 });
+    }
+
+    const records = await employeeService.getAttendanceRecords(
+      session.companyId,
+      employeeId,
+      startDate,
+      endDate
+    );
+
+    return NextResponse.json({
+      status: 'success',
+      records,
+      count: records.length,
+    });
+  } catch (error) {
+    console.error('Get attendance error:', error);
+    return NextResponse.json(
+      { error: 'Failed to retrieve attendance records' },
+      { status: 500 }
+    );
+  }
+}

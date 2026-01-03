@@ -45,7 +45,7 @@ export class AnalyticsService {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const orders = await prisma.order.findMany({
+    const sales = await prisma.sale.findMany({
       where: {
         companyId,
         createdAt: { gte: startDate },
@@ -56,15 +56,15 @@ export class AnalyticsService {
       },
     });
 
-    const totalRevenue = orders.reduce((sum: number, order: any) => sum + (order.totalAmount || 0), 0);
-    const totalOrders = orders.length;
-    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const totalRevenue = sales.reduce((sum: number, sale: any) => sum + (sale.totalAmount || 0), 0);
+    const totalSales = sales.length;
+    const averageOrderValue = totalSales > 0 ? totalRevenue / totalSales : 0;
 
     // Get top products
-    const topProducts = await prisma.orderItem.groupBy({
+    const topProducts = await prisma.saleItem.groupBy({
       by: ['productId'],
       where: {
-        order: { companyId, createdAt: { gte: startDate } },
+        sale: { companyId, createdAt: { gte: startDate } },
       },
       _sum: { quantity: true, totalPrice: true },
       orderBy: { _sum: { totalPrice: 'desc' } },
@@ -72,7 +72,7 @@ export class AnalyticsService {
     });
 
     // Get top clients
-    const topClients = await prisma.order.groupBy({
+    const topClients = await prisma.sale.groupBy({
       by: ['clientId'],
       where: { companyId, createdAt: { gte: startDate } },
       _sum: { totalAmount: true },
@@ -81,8 +81,8 @@ export class AnalyticsService {
       take: 5,
     });
 
-    // Get orders by status
-    const ordersByStatus = await prisma.order.groupBy({
+    // Get sales by status
+    const ordersByStatus = await prisma.sale.groupBy({
       by: ['status'],
       where: { companyId },
       _count: true,
@@ -97,8 +97,8 @@ export class AnalyticsService {
         trend: 'up',
       },
       totalOrders: {
-        label: 'Total Orders',
-        value: totalOrders,
+        label: 'Total Sales',
+        value: totalSales,
         change: 0,
         changePercent: 0,
         trend: 'up',
@@ -184,12 +184,12 @@ export class AnalyticsService {
     });
 
     const totalRevenue = invoices
-      .filter((i: any) => i.status === 'paid')
-      .reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
+      .filter((i: any) => i.status === 'PAID')
+      .reduce((sum: number, i: any) => sum + (Number(i.totalAmount) || 0), 0);
 
     const accountsReceivable = invoices
-      .filter((i: any) => i.status !== 'paid')
-      .reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
+      .filter((i: any) => i.status !== 'PAID')
+      .reduce((sum: number, i: any) => sum + (Number(i.totalAmount) || 0), 0);
 
     return {
       totalRevenue: {

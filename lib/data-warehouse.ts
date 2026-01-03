@@ -19,7 +19,7 @@ export interface FactTable {
 export class DataWarehouse {
   async createSalesFact(companyId: string): Promise<void> {
     // Aggregate sales data into fact table
-    const orders = await prisma.order.findMany({
+    const sales = await prisma.sale.findMany({
       where: { companyId },
       include: {
         items: true,
@@ -27,13 +27,13 @@ export class DataWarehouse {
       },
     });
 
-    const facts = orders.map((order: any) => ({
-      orderId: order.id,
-      clientId: order.clientId,
-      totalAmount: order.totalAmount,
-      itemCount: order.items.length,
-      status: order.status,
-      date: order.createdAt,
+    const facts = sales.map((sale: any) => ({
+      saleId: sale.id,
+      clientId: sale.clientId,
+      totalAmount: sale.totalAmount,
+      itemCount: sale.items.length,
+      status: sale.status,
+      date: sale.createdAt,
     }));
 
     return;
@@ -65,7 +65,7 @@ export class DataWarehouse {
 
     const facts = invoices.map((invoice: any) => ({
       invoiceId: invoice.id,
-      amount: invoice.amount,
+      amount: Number(invoice.totalAmount),
       status: invoice.status,
       date: invoice.createdAt,
     }));
@@ -117,12 +117,12 @@ export class DataWarehouse {
     const tables: FactTable[] = [];
 
     // Sales fact
-    const orderCount = await prisma.order.count({ where: { companyId } });
+    const saleCount = await prisma.sale.count({ where: { companyId } });
     tables.push({
       id: 'fact_sales',
       name: 'Sales',
       description: 'Sales fact table',
-      recordCount: orderCount,
+      recordCount: saleCount,
       lastUpdated: new Date(),
     });
 
