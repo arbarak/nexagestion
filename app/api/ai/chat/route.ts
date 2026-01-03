@@ -73,46 +73,99 @@ export async function POST(request: NextRequest) {
 async function generateAIResponse(message: string, companyId: string): Promise<string> {
   const lowerMessage = message.toLowerCase();
 
-  // Simple intent matching
-  if (lowerMessage.includes('sales') || lowerMessage.includes('revenue')) {
-    const sales = await prisma.sale.findMany({
-      where: { companyId },
-      take: 1,
-      orderBy: { createdAt: 'desc' },
-    });
-    const total = sales.reduce((sum: number, s: any) => sum + (s.total || 0), 0);
-    return `Based on recent data, your total sales are $${total.toLocaleString()}. Would you like more details?`;
-  }
+  try {
+    // Sales and Revenue Intelligence
+    if (lowerMessage.includes('sales') || lowerMessage.includes('revenue') || lowerMessage.includes('order')) {
+      const sales = await prisma.sale.findMany({
+        where: { companyId },
+        include: { client: true },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      });
 
-  if (lowerMessage.includes('inventory') || lowerMessage.includes('stock')) {
-    const stocks = await prisma.stock.findMany({
-      where: { companyId },
-    });
-    const lowStock = stocks.filter((s: any) => s.quantity < s.minQuantity).length;
-    return `You have ${lowStock} products with low stock levels. Would you like me to show you which ones?`;
-  }
+      if (sales.length === 0) {
+        return 'You don\'t have any sales recorded yet. Start by creating your first sale!';
+      }
 
-  if (lowerMessage.includes('customer') || lowerMessage.includes('client')) {
-    const company = await prisma.company.findUnique({
-      where: { id: companyId },
-      select: { groupId: true },
-    });
+      const total = sales.reduce((sum: number, s: any) => sum + Number(s.totalAmount || 0), 0);
+      const avgValue = total / sales.length;
+      const lastSale = sales[0];
 
-    if (!company) {
-      return `I couldn't access your company information. Please try again.`;
+      return `📊 Sales Analytics:\n• Total Sales: $${total.toLocaleString('en-US', { maximumFractionDigits: 2 })}\n• Average Order Value: $${avgValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}\n• Recent Order: ${lastSale.client?.name} - $${Number(lastSale.totalAmount).toLocaleString('en-US', { maximumFractionDigits: 2 })}\n• Total Orders: ${sales.length}\n\nWould you like to see more details about specific orders or time periods?`;
     }
 
-    const clients = await prisma.client.findMany({
-      where: { groupId: company.groupId },
-    });
-    return `You have ${clients.length} customers in your system. Would you like to see top customers?`;
-  }
+    // Inventory and Stock Intelligence
+    if (lowerMessage.includes('inventory') || lowerMessage.includes('stock') || lowerMessage.includes('product')) {
+      const stocks = await prisma.stock.findMany({
+        where: { companyId },
+        include: { product: true },
+      });
 
-  if (lowerMessage.includes('help') || lowerMessage.includes('what can')) {
-    return `I can help you with:\n• Sales and revenue information\n• Inventory and stock levels\n• Customer information\n• Order status\n• Financial reports\n\nWhat would you like to know?`;
-  }
+      if (stocks.length === 0) {
+        return 'No inventory items found. Start by adding products to your inventory.';
+      }
 
-  return `I understand you're asking about "${message}". I can help with sales, inventory, customers, and orders. What specific information do you need?`;
+      const lowStock = stocks.filter((s: any) => s.quantity < (s.minimumLevel || 10));
+      const totalValue = stocks.reduce((sum: number, s: any) => sum + (s.quantity * (s.product?.price || 0)), 0);
+
+      let response = `📦 Inventory Status:\n• Total Items: ${stocks.length}\n• Low Stock Items: ${lowStock.length}`;
+      if (lowStock.length > 0) {
+        response += `\n\nLow Stock Products:\n${lowStock.slice(0, 3).map((s: any) => `- ${s.product?.name || 'Unknown'}: ${s.quantity} units`).join('\n')}`;
+      }
+      response += `\n• Inventory Value: $${totalValue.toLocaleString('en-US', { maximumFractionDigits: 2 })}\n\nWould you like me to flag items for reordering?`;
+      return response;
+    }
+
+    // Customer Intelligence
+    if (lowerMessage.includes('customer') || lowerMessage.includes('client') || lowerMessage.includes('contact')) {
+      const company = await prisma.company.findUnique({
+        where: { id: companyId },
+        select: { groupId: true },
+      });
+
+      if (!company) {
+        return `I couldn't access your company information. Please try again.`;
+      }
+
+      const clients = await prisma.client.findMany({
+        where: { groupId: company.groupId },
+        take: 5,
+      });
+
+      if (clients.length === 0) {
+        return 'No customers found. Start by adding your first customer!';
+      }
+
+      return `👥 Customer Information:\n• Total Customers: ${clients.length}\n• Sample Customers:\n${clients.slice(0, 3).map((c: any) => `- ${c.name} (${c.email})`).join('\n')}\n\nWould you like to see customer analytics or transaction history?`;
+    }
+
+    // Financial Intelligence
+    if (lowerMessage.includes('finance') || lowerMessage.includes('profit') || lowerMessage.includes('expense')) {
+      const invoices = await prisma.invoice.findMany({
+        where: { companyId },
+      });
+
+      if (invoices.length === 0) {
+        return 'No financial data available. Create invoices to see financial analytics.';
+      }
+
+      const totalRevenue = invoices.reduce((sum: number, i: any) => sum + Number(i.totalAmount || 0), 0);
+      const paidInvoices = invoices.filter((i: any) => i.status === 'PAID').length;
+
+      return `💰 Financial Summary:\n• Total Invoiced: $${totalRevenue.toLocaleString('en-US', { maximumFractionDigits: 2 })}\n• Paid Invoices: ${paidInvoices}/${invoices.length}\n• Outstanding: ${invoices.length - paidInvoices} invoices\n\nWould you like detailed profit analysis or cash flow projections?`;
+    }
+
+    // Help and Capabilities
+    if (lowerMessage.includes('help') || lowerMessage.includes('what can') || lowerMessage.includes('capabilities')) {
+      return `🤖 AI Assistant Capabilities:\n\nI can help you with:\n• 📊 **Sales Analytics** - Ask about revenue, orders, and trends\n• 📦 **Inventory Management** - Check stock levels and products\n• 👥 **Customer Intelligence** - View customer data and metrics\n• 💰 **Financial Reports** - See revenue and invoice status\n• 📈 **Insights** - Ask for recommendations and trends\n\nTry asking me things like:\n• "How are my sales today?"\n• "Show me low stock items"\n• "How many customers do I have?"\n• "What's my total revenue?"\n\nWhat would you like to know?`;
+    }
+
+    // Default response with helpful suggestions
+    return `I understand you're asking about "${message}". \n\nI can help with:\n• Sales & Revenue\n• Inventory & Stock\n• Customers & Contacts\n• Financial Reports\n\nFor more help, just ask "help" or tell me what you'd like to know!`;
+  } catch (error) {
+    console.error('Error generating AI response:', error);
+    return 'I encountered an error processing your request. Please try again.';
+  }
 }
 
 export async function GET(request: NextRequest) {
