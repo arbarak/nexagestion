@@ -1,111 +1,63 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
-import { checkPermission, checkGroupAccess } from "@/lib/permissions";
-import { handleApiError, ErrorCodes } from "@/lib/api-error";
-import { prisma } from "@/lib/prisma";
-import { z } from "zod";
-
-const updateEmployeeSchema = z.object({
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  phone: z.string().optional(),
-  position: z.string().optional(),
-});
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyAuth } from '@/lib/auth';
+import { employeeService } from '@/lib/employee-service';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getSession();
-    if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEE", "READ");
+    const session = await verifyAuth(request);
+    if (!session || !session.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const { id } = await params;
-    const employee = await prisma.employee.findUnique({
-      where: { id },
-      include: {
-        sessions: {
-          orderBy: { checkIn: "desc" },
-          take: 30,
-        },
-        company: true,
-      },
+    const employee = await employeeService.getEmployee(session.companyId, params.id);
+
+    if (!employee) {
+      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      status: 'success',
+      employee,
     });
-
-    if (!employee) throw ErrorCodes.NOT_FOUND("Employee not found");
-    checkGroupAccess(session, employee.company.groupId);
-
-    return NextResponse.json({ data: employee });
   } catch (error) {
-    return handleApiError(error);
+    console.error('Get employee error:', error);
+    return NextResponse.json(
+      { error: 'Failed to retrieve employee' },
+      { status: 500 }
+    );
   }
 }
 
-export async function PATCH(
+export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getSession();
-    if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEE", "UPDATE");
+    const session = await verifyAuth(request);
+    if (!session || !session.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const { id } = await params;
-    const employee = await prisma.employee.findUnique({
-      where: { id },
-      include: { company: true },
+    const updates = await request.json();
+
+    const employee = await employeeService.updateEmployee(session.companyId, params.id, updates);
+
+    if (!employee) {
+      return NextResponse.json({ error: 'Failed to update employee' }, { status: 400 });
+    }
+
+    return NextResponse.json({
+      status: 'success',
+      employee,
     });
-
-    if (!employee) throw ErrorCodes.NOT_FOUND("Employee not found");
-    checkGroupAccess(session, employee.company.groupId);
-
-    const body = await request.json();
-    const data = updateEmployeeSchema.parse(body);
-
-    const updated = await prisma.employee.update({
-      where: { id },
-      data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        position: data.position,
-      },
-    });
-
-    return NextResponse.json({ data: updated });
   } catch (error) {
-    return handleApiError(error);
+    console.error('Update employee error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to update employee' },
+      { status: 500 }
+    );
   }
 }
-
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const session = await getSession();
-    if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEE", "DELETE");
-
-    const { id } = await params;
-    const employee = await prisma.employee.findUnique({
-      where: { id },
-      include: { company: true },
-    });
-
-    if (!employee) throw ErrorCodes.NOT_FOUND("Employee not found");
-    checkGroupAccess(session, employee.company.groupId);
-
-
-
-    await prisma.employee.delete({
-      where: { id },
-    });
-
-    return NextResponse.json({ data: { success: true } });
-  } catch (error) {
-    return handleApiError(error);
-  }
-}
-

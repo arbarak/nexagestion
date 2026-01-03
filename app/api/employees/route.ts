@@ -1,88 +1,59 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
-import { checkPermission, checkGroupAccess } from "@/lib/permissions";
-import { handleApiError, ErrorCodes } from "@/lib/api-error";
-import { prisma } from "@/lib/prisma";
-import { z } from "zod";
-
-const createEmployeeSchema = z.object({
-  companyId: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string().email(),
-  phone: z.string(),
-  position: z.string(),
-});
-
-export async function GET(request: NextRequest) {
-  try {
-    const session = await getSession();
-    if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEE", "READ");
-
-    const { searchParams } = new URL(request.url);
-    const companyId = searchParams.get("companyId");
-
-    if (!companyId) {
-      throw ErrorCodes.VALIDATION_ERROR("companyId is required");
-    }
-
-    const employees = await prisma.employee.findMany({
-      where: { companyId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json({ data: employees });
-  } catch (error) {
-    return handleApiError(error);
-  }
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyAuth } from '@/lib/auth';
+import { employeeService } from '@/lib/employee-service';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEE", "CREATE");
-
-    const body = await request.json();
-    const data = createEmployeeSchema.parse(body);
-
-    const company = await prisma.company.findUnique({
-      where: { id: data.companyId },
-    });
-
-    if (!company) {
-      throw ErrorCodes.NOT_FOUND("Company not found");
+    const session = await verifyAuth(request);
+    if (!session || !session.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    checkGroupAccess(session, company.groupId);
+    const data = await request.json();
 
-    // Check email uniqueness
-    const existingEmployee = await prisma.employee.findFirst({
-      where: {
-        companyId: data.companyId,
-        email: data.email,
+    const employee = await employeeService.createEmployee(session.companyId, data);
+
+    return NextResponse.json(
+      {
+        status: 'success',
+        employee,
       },
-    });
-
-    if (existingEmployee) {
-      throw ErrorCodes.CONFLICT("Employee with this email already exists");
-    }
-
-    const employee = await prisma.employee.create({
-      data: {
-        companyId: data.companyId,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phone: data.phone,
-        position: data.position,
-      },
-    });
-
-    return NextResponse.json({ data: employee }, { status: 201 });
+      { status: 201 }
+    );
   } catch (error) {
-    return handleApiError(error);
+    console.error('Create employee error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to create employee' },
+      { status: 400 }
+    );
   }
 }
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await verifyAuth(request);
+    if (!session || !session.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const department = searchParams.get('department');
+    const position = searchParams.get('position');
+
+    const employees = await employeeService.getEmployees(session.companyId, {
+      status: status || undefined,
+      department: department || undefined,
+      position: position || undefined,
+    });
+
+    return NextResponse.json({
+      status: 'success',
+      employees,
+      count: employees.length,
+    });
+  } catch (error) {
+    console.error('Get employees error:', error);
+    return NextResponse.json({ error: 'Failed to retrieve employees' }, { status: 500 });
+  }
+}

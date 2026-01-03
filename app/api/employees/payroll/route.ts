@@ -1,105 +1,72 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
-import { checkPermission, checkGroupAccess } from "@/lib/permissions";
-import { handleApiError, ErrorCodes } from "@/lib/api-error";
-import { prisma } from "@/lib/prisma";
-import { z } from "zod";
-
-const createPayrollSchema = z.object({
-  groupId: z.string(),
-  employeeId: z.string(),
-  month: z.string(),
-  baseSalary: z.number().positive(),
-  bonus: z.number().min(0),
-  deductions: z.number().min(0),
-  netSalary: z.number().positive(),
-  status: z.enum(["DRAFT", "APPROVED", "PAID", "CANCELLED"]),
-});
-
-export async function GET(request: NextRequest) {
-  try {
-    const session = await getSession();
-    if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEE", "READ");
-
-    const { searchParams } = new URL(request.url);
-    const employeeId = searchParams.get("employeeId");
-    const groupId = searchParams.get("groupId");
-
-    if (!groupId) {
-      throw ErrorCodes.VALIDATION_ERROR("groupId is required");
-    }
-
-    checkGroupAccess(session, groupId);
-
-    const payroll = await prisma.payroll.findMany({
-      where: {
-        groupId,
-        ...(employeeId && { employeeId }),
-      },
-      include: {
-        employee: true,
-      },
-      orderBy: { month: "desc" },
-    });
-
-    return NextResponse.json({ data: payroll });
-  } catch (error) {
-    return handleApiError(error);
-  }
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyAuth } from '@/lib/auth';
+import { employeeService } from '@/lib/employee-service';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession();
-    if (!session) throw ErrorCodes.UNAUTHORIZED();
-    checkPermission(session, "EMPLOYEE", "CREATE");
-
-    const body = await request.json();
-    const data = createPayrollSchema.parse(body);
-
-    checkGroupAccess(session, data.groupId);
-
-    // Check if employee exists
-    const employee = await prisma.employee.findUnique({
-      where: { id: data.employeeId },
-    });
-
-    if (!employee) {
-      throw ErrorCodes.NOT_FOUND("Employee not found");
+    const session = await verifyAuth(request);
+    if (!session || !session.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if payroll already exists for this month
-    const existingPayroll = await prisma.payroll.findFirst({
-      where: {
-        employeeId: data.employeeId,
-        month: data.month,
-      },
-    });
+    const { payPeriodStart, payPeriodEnd } = await request.json();
 
-    if (existingPayroll) {
-      throw ErrorCodes.CONFLICT("Payroll already exists for this month");
+    if (!payPeriodStart || !payPeriodEnd) {
+      return NextResponse.json(
+        { error: 'payPeriodStart and payPeriodEnd are required' },
+        { status: 400 }
+      );
     }
 
-    const payroll = await prisma.payroll.create({
-      data: {
-        groupId: data.groupId,
-        employeeId: data.employeeId,
-        month: data.month,
-        baseSalary: data.baseSalary,
-        bonus: data.bonus,
-        deductions: data.deductions,
-        netSalary: data.netSalary,
-        status: data.status,
-      },
-      include: {
-        employee: true,
-      },
-    });
+    const payrollRecords = await employeeService.generatePayroll(
+      session.companyId,
+      new Date(payPeriodStart),
+      new Date(payPeriodEnd)
+    );
 
-    return NextResponse.json({ data: payroll }, { status: 201 });
+    return NextResponse.json(
+      {
+        status: 'success',
+        message: `Generated payroll for ${payrollRecords.length} employees`,
+        payrollRecords,
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    return handleApiError(error);
+    console.error('Generate payroll error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to generate payroll' },
+      { status: 500 }
+    );
   }
 }
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await verifyAuth(request);
+    if (!session || !session.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const employeeId = searchParams.get('employeeId');
+    const status = searchParams.get('status');
+
+    const payrollRecords = await employeeService.getPayrollRecords(session.companyId, {
+      employeeId: employeeId || undefined,
+      status: status || undefined,
+    });
+
+    return NextResponse.json({
+      status: 'success',
+      payrollRecords,
+      count: payrollRecords.length,
+    });
+  } catch (error) {
+    console.error('Get payroll error:', error);
+    return NextResponse.json(
+      { error: 'Failed to retrieve payroll records' },
+      { status: 500 }
+    );
+  }
+}
