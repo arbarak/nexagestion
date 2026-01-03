@@ -3,7 +3,7 @@ import { prisma } from './prisma';
 
 export class SearchIndexer {
   async indexOrders(companyId: string): Promise<number> {
-    const orders = await prisma.order.findMany({
+    const sales = await prisma.sale.findMany({
       where: { companyId },
       include: {
         client: true,
@@ -27,24 +27,24 @@ export class SearchIndexer {
       };
     }
 
-    const documents: OrderDocument[] = orders.map((order: any) => ({
-      id: order.id,
+    const documents: OrderDocument[] = sales.map((sale: any) => ({
+      id: sale.id,
       data: {
-        type: 'order',
+        type: 'sale',
         companyId,
-        title: `Order #${order.orderNumber}`,
-        description: `Order from ${order.client?.name || 'Unknown'}`,
-        content: `Order ${order.orderNumber} - ${order.status}`,
-        status: order.status,
-        clientId: order.clientId,
-        totalAmount: order.totalAmount,
-        createdAt: order.createdAt,
-        tags: ['order', order.status],
+        title: `Sale #${sale.number}`,
+        description: `Sale from ${sale.client?.name || 'Unknown'}`,
+        content: `Sale ${sale.number} - ${sale.status}`,
+        status: sale.status,
+        clientId: sale.clientId,
+        totalAmount: sale.totalAmount,
+        createdAt: sale.createdAt,
+        tags: ['sale', sale.status],
       },
     }));
 
     if (documents.length > 0) {
-      await searchService.bulkIndex('orders', documents);
+      await searchService.bulkIndex('sales', documents);
     }
 
     return documents.length;
@@ -189,7 +189,7 @@ export class SearchIndexer {
 
   async indexAll(companyId: string): Promise<Record<string, number>> {
     const results = {
-      orders: await this.indexOrders(companyId),
+      sales: await this.indexOrders(companyId),
       invoices: await this.indexInvoices(companyId),
       products: await this.indexProducts(companyId),
       clients: await this.indexClients(companyId),
